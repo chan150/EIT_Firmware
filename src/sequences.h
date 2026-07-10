@@ -478,10 +478,38 @@ uint32_t seq_afe_fast_meas_4wire[] = {
     0xA0000208,   /* AFE_ADC_CFG: AN_A, Use GAIN and OFFSET AUX                             */
     0x00000640,   /* Wait 100us                                                             */
     0x80024EF0,   /* AFE_CFG: WAVEGEN_EN = 1                                                */
-    0x00032340,   /* Wait 13ms                                                              */    
+    0x00003E80,   /* Wait 1ms (Settling time reduced)                                       */    
     // 0x00000C80,   /* Wait 200us                                                             */
     0x8002CFF0,   /* AFE_CFG: ADC_CONV_EN = 1, DFT_EN = 1                                   */
     0x00032340,   /* Wait 13ms                                                              */
+    0x80020EF0,   /* AFE_CFG: WAVEGEN_EN, ADC_CONV_EN = 0, DFT_EN = 0                       */
+    0x86007788,   /* DMUX_STATE = 0, PMUX_STATE = 0, NMUX_STATE = 0, TMUX_STATE = 0         */
+    0x82000002,   /* AFE_SEQ_CFG: SEQ_EN = 0                                                */
+};
+
+uint32_t seq_afe_meas_only_4wire[] = {
+    9 << 16 | 0x00,   /* Safety word: command count = 9, CRC = 0 (Auto-computed by driver)      */
+    /* AN_A */
+    0xA0000208,   /* AFE_ADC_CFG: AN_A, Use GAIN and OFFSET AUX                             */
+    0x00000640,   /* Wait 100us                                                             */
+    0x80024EF0,   /* AFE_CFG: WAVEGEN_EN = 1                                                */
+    0x00003E80,   /* Wait 1ms (Settling time reduced)                                       */
+    0x8002CFF0,   /* AFE_CFG: ADC_CONV_EN = 1, DFT_EN = 1                                   */
+    0x00032340,   /* Wait 13ms                                                              */
+    0x80020EF0,   /* AFE_CFG: WAVEGEN_EN, ADC_CONV_EN = 0, DFT_EN = 0                       */
+    0x86007788,   /* DMUX_STATE = 0, PMUX_STATE = 0, NMUX_STATE = 0, TMUX_STATE = 0         */
+    0x82000002,   /* AFE_SEQ_CFG: SEQ_EN = 0                                                */
+};
+
+uint32_t seq_afe_raw_adc_only_4wire[] = {
+    10 << 16 | 0x00,  /* Safety word: command count = 10, CRC = 0 (Auto-computed by driver)     */
+    0xA0000208,   /* AFE_ADC_CFG: AN_A, Use GAIN and OFFSET AUX                             */
+    0x84000818,   /* AFE_FIFO_CFG: DATA_FIFO_SOURCE_SEL = 0 (ADC raw data), FIFO EN          */
+    0x00000640,   /* Wait 100us                                                             */
+    0x80024EF0,   /* AFE_CFG: WAVEGEN_EN = 1                                                */
+    0x00003E80,   /* Wait 1ms (Settling time)                                               */
+    0x80024FF0,   /* AFE_CFG: ADC_CONV_EN = 1, DFT_EN = 0                                   */
+    0x00003E80,   /* Wait 1ms (to capture ~160 samples at 160kHz ADC rate)                  */
     0x80020EF0,   /* AFE_CFG: WAVEGEN_EN, ADC_CONV_EN = 0, DFT_EN = 0                       */
     0x86007788,   /* DMUX_STATE = 0, PMUX_STATE = 0, NMUX_STATE = 0, TMUX_STATE = 0         */
     0x82000002,   /* AFE_SEQ_CFG: SEQ_EN = 0                                                */

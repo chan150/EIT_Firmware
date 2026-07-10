@@ -35,6 +35,7 @@ License Agreement.
 //#endif /* _MISRA_RULES */
 
 #include <stdio.h>
+#include <math.h>
 #include <stddef.h>  // for 'NULL'
 #include <stdio.h>   // for scanf
 #include <string.h>  // for strncmp
@@ -202,6 +203,8 @@ q15_t                   arctan                  (q15_t imag, q15_t real);
 fixed32_t calculate_magnitude(q31_t magnitude_1, q31_t magnitude_2, uint32_t res);
 fixed32_t               calculate_phase         (q15_t phase_rcal, q15_t phase_z);
 void                    convert_dft_results     (int16_t *dft_results, q15_t *dft_results_q15, q31_t *dft_results_q31);
+void                    convert_dft_results_single(int16_t *dft_results, q15_t *dft_results_q15, q31_t *dft_results_q31);
+q31_t                   compute_goertzel_magnitude(int16_t *samples, int num_samples, float target_frequency, float sampling_rate);
 void                    sprintf_fixed32         (char *out, fixed32_t in);
 void                    print_MagnitudePhase    (char *text, fixed32_t magnitude, fixed32_t phase);
 void                    test_print              (char *pBuffer);
@@ -525,6 +528,50 @@ void convert_dft_results(int16_t *dft_results, q15_t *dft_results_q15, q31_t *df
     /*  Convert to 1.31 format */
     arm_q15_to_q31(dft_results_q15, dft_results_q31, DFT_RESULTS_COUNT);
 
+}
+
+void convert_dft_results_single(int16_t *dft_results, q15_t *dft_results_q15, q31_t *dft_results_q31) {
+    if ((dft_results[0] < DFT_RESULTS_OPEN_MAX_THR) &&
+        (dft_results[0] > DFT_RESULTS_OPEN_MIN_THR) &&               /* real part */
+        (dft_results[1] < DFT_RESULTS_OPEN_MAX_THR) &&
+        (dft_results[1] > DFT_RESULTS_OPEN_MIN_THR)) {       /* imaginary part */
+
+        /* Open circuit, force both real and imaginary parts to 0 */
+        dft_results[0]           = 0;
+        dft_results[1]           = 0;
+    }
+
+    /*  Convert to 1.15 format */
+    dft_results_q15[0] = (q15_t)dft_results[0];
+    dft_results_q15[1] = (q15_t)dft_results[1];
+
+    /*  Convert to 1.31 format */
+    arm_q15_to_q31(dft_results_q15, dft_results_q31, 2);
+}
+
+q31_t compute_goertzel_magnitude(int16_t *samples, int num_samples, float target_frequency, float sampling_rate) {
+    float omega = (2.0f * 3.1415926535f * target_frequency) / sampling_rate;
+    float sine = sinf(omega);
+    float cosine = cosf(omega);
+    float coeff = 2.0f * cosine;
+
+    float q0 = 0.0f;
+    float q1 = 0.0f;
+    float q2 = 0.0f;
+
+    for (int i = 0; i < num_samples; i++) {
+        q0 = coeff * q1 - q2 + (float)samples[i];
+        q2 = q1;
+        q1 = q0;
+    }
+
+    float real = q1 - q2 * cosine;
+    float imag = q2 * sine;
+    float magnitude = sqrtf(real * real + imag * imag);
+
+    /* Scale magnitude to match the 2048-point hardware DFT magnitude output scale */
+    float scaled_mag = magnitude * (2048.0f / (float)num_samples);
+    return (q31_t)scaled_mag;
 }
 
 /* Calculates magnitude.                                */      
@@ -907,16 +954,18 @@ void multiplex_adg732(ADI_AFE_DEV_HANDLE  hDevice, const uint32_t *const seq,uin
     rtiaAndGain = (uint32_t)((RTIA * 1.5) / INST_AMP_GAIN);
       
     PRINT("magnitudes: ");
-    // 
+    
+    /* Enable software CRC so the driver dynamically calculates the CRC of the sequences */
+    adi_AFE_EnableSoftwareCRC(hDevice, true);
+    
+    q31_t cached_rcal_mag = 0;
+    int16_t adc_samples[160] = {0};
+    
     // NUMBEROFMEASURES is determined by which electrode configuration: 8,16 or 32. 
     for (uint32_t econf = 0;econf<numberofmeasures;econf++) {    
                 
       char                tmp[300] = {0};      
-      q31_t               dft_results_q31[DFT_RESULTS_COUNT]      = {0};
-      q15_t               dft_results_q15[DFT_RESULTS_COUNT]      = {0};
-      q31_t               temp_magnitude[DFT_RESULTS_COUNT/2]     = {0};
-      int16_t             temp_dft_results[DFT_RESULTS_COUNT]     = {0};
-      fixed32_t           magnitude_result[DFT_RESULTS_COUNT/2-1] = {0};
+      fixed32_t           magnitude_result[1] = {0};
       
       // This is where we select the electrode sequence. i.e. 8,16 or 32 adjacent or opposition.  
       int16_t* e;
@@ -933,51 +982,36 @@ void multiplex_adg732(ADI_AFE_DEV_HANDLE  hDevice, const uint32_t *const seq,uin
         e = (int16_t *)electrode_configuration_32_opposition[econf];
       }
       
-      // M1,M2,M3,M4 = 1,2,4,5 
-      // U4, A-, m1, position 3
-      // U2, V-, m2, position 2 
-      // U1, A+. m3, position 1
-      // U5, V+, m4, position 4
-      // 
-      // e_conf file is written as A+,A-,V+,V-
-      // I've mapped them like this so the e_conf file matches the 
-      // multiplexer assignement i.e. A+ -> A+ etc. 
       multiplex_adg732_fast(e); 
       
-      // Now the multiplexers are set, take a measurement. 
-      // Get a measurement:  
-      // 1. calibrate (only the first time) 
-      // 2. sequence enable
-      // 3. take measurement. 
-      // 4. sequence disable
-      // 5. put result into new results table
-      // adi_AFE_EnableSoftwareCRC(hDevice, true);
-      /* Perform the Impedance measurement */      
+      if (econf == 0 || cached_rcal_mag == 0) {
+        /* 1. Measure TIA (RCAL) raw samples */
+        seq_afe_raw_adc_only_4wire[1] = 0xA0000002; /* TIA channel */
+        if (ADI_AFE_SUCCESS != adi_AFE_RunSequence(hDevice, seq_afe_raw_adc_only_4wire, (uint16_t *)adc_samples, 160)) 
+        {
+          PRINT("FAILED TIA Measurement");
+        }
+        cached_rcal_mag = compute_goertzel_magnitude(adc_samples, 160, 50000.0f, 160000.0f);
+      }
       
-      if (ADI_AFE_SUCCESS != adi_AFE_RunSequence(hDevice, seq, (uint16_t *)temp_dft_results, DFT_RESULTS_COUNT)) 
+      /* 2. Measure AN_A (electrode) raw samples */
+      seq_afe_raw_adc_only_4wire[1] = 0xA0000208; /* AN_A channel */
+      if (ADI_AFE_SUCCESS != adi_AFE_RunSequence(hDevice, seq_afe_raw_adc_only_4wire, (uint16_t *)adc_samples, 160)) 
       {
         PRINT("FAILED Impedance Measurement");
-      }   
-                     
-      convert_dft_results(temp_dft_results, dft_results_q15, dft_results_q31);
-      /* Magnitude calculation */
-      //arm_cmplx_mag_q31(dft_results_q31, temp_magnitude, 2);
-            /* Magnitude calculation */
-      /* Use CMSIS function */
-      arm_cmplx_mag_q31(dft_results_q31, temp_magnitude, DFT_RESULTS_COUNT / 2);
+      }
+      q31_t measured_mag = compute_goertzel_magnitude(adc_samples, 160, 50000.0f, 160000.0f);
       
-      // magnitude = magnitude_1 / magnitude_2 * res  ,
-      magnitude_result[0] = calculate_magnitude(temp_magnitude[1], temp_magnitude[0], rtiaAndGain);
-      
-      /* Print DFT complex results to console 983039, 0 on my board, and  when it works magnitude is 74333772, 274209844) */     
-      //sprintf(tmp, "   magnitudes     = (%u, %u)\r\n", temp_magnitude[0], temp_magnitude[1]);
-      //strcat(msg,tmp);
+      magnitude_result[0] = calculate_magnitude(measured_mag, cached_rcal_mag, rtiaAndGain);
         
       sprintf_fixed32(tmp, magnitude_result[0]);
       strcat(tmp,",");
       
       PRINT(tmp);
     } // END  e_config for loop. 
+    
+    /* Restore to default behavior (Software CRC disabled) */
+    adi_AFE_EnableSoftwareCRC(hDevice, false);
     
     PRINT("\r\n"); 
     adi_UART_BufFlush(hUartDevice);
@@ -1007,17 +1041,19 @@ void bipolar_adg732(ADI_AFE_DEV_HANDLE  hDevice, const uint32_t *const seq,uint3
     }
 
     PRINT("magnitudes: ");
+    
+    /* Enable software CRC so the driver dynamically calculates the CRC of the sequences */
+    adi_AFE_EnableSoftwareCRC(hDevice, true);
+    
+    q31_t cached_rcal_mag = 0;
+    int16_t adc_samples[160] = {0};
+    
     // NUMBEROFMEASURES is determined by which electrode configuration: 8,16 or 32. 
     for (uint32_t econf = 0;econf<numberofmeasures;econf++) {    
                 
       char                tmp[300] = {0};      
-      q31_t               dft_results_q31[DFT_RESULTS_COUNT]      = {0};
-      q15_t               dft_results_q15[DFT_RESULTS_COUNT]      = {0};
-      q31_t               temp_magnitude[DFT_RESULTS_COUNT/2]     = {0};
-      int16_t             temp_dft_results[DFT_RESULTS_COUNT]     = {0};
-      fixed32_t           magnitude_result[DFT_RESULTS_COUNT/2-1] = {0};
-      int8_t              i = 0;   
-          
+      fixed32_t           magnitude_result[1] = {0};
+      
       // This is where we select the electrode sequence. i.e. 8,16 or 32 adjacent or opposition.  
       int16_t* e;
       if (n_el == 8) {
@@ -1033,45 +1069,36 @@ void bipolar_adg732(ADI_AFE_DEV_HANDLE  hDevice, const uint32_t *const seq,uint3
         e = (int16_t *)electrode_configuration_32_opposition[econf];
       }
       
-      // M1,M2,M3,M4 = 1,2,4,5 
-      // U4, A-, m1, position 3
-      // U2, V-, m2, position 2 
-      // U1, A+. m3, position 1
-      // U5, V+, m4, position 4
-      // 
-      // e_conf file is written as A+,A-,V+,V-
-      // I've mapped them like this so the e_conf file matches the 
-      // multiplexer assignement i.e. A+ -> A+ etc. 
       multiplex_adg732_fast(e); 
       
-      // Now the multiplexers are set, take a measurement. 
-      // Get a measurement:  
-      // 1. calibrate (only the first time) 
-      // 2. sequence enable
-      // 3. take measurement. 
-      // 4. sequence disable
-      // 5. put result into new results table
-      // adi_AFE_EnableSoftwareCRC(hDevice, true);
-      /* Perform the Impedance measurement */      
+      if (econf == 0 || cached_rcal_mag == 0) {
+        /* 1. Measure TIA (RCAL) raw samples */
+        seq_afe_raw_adc_only_4wire[1] = 0xA0000002; /* TIA channel */
+        if (ADI_AFE_SUCCESS != adi_AFE_RunSequence(hDevice, seq_afe_raw_adc_only_4wire, (uint16_t *)adc_samples, 160)) 
+        {
+          PRINT("FAILED TIA Measurement");
+        }
+        cached_rcal_mag = compute_goertzel_magnitude(adc_samples, 160, 50000.0f, 160000.0f);
+      }
       
-      if (ADI_AFE_SUCCESS != adi_AFE_RunSequence(hDevice, seq, (uint16_t *)temp_dft_results, DFT_RESULTS_COUNT)) 
+      /* 2. Measure AN_A (electrode) raw samples */
+      seq_afe_raw_adc_only_4wire[1] = 0xA0000208; /* AN_A channel */
+      if (ADI_AFE_SUCCESS != adi_AFE_RunSequence(hDevice, seq_afe_raw_adc_only_4wire, (uint16_t *)adc_samples, 160)) 
       {
         PRINT("FAILED Impedance Measurement");
-      }   
-                     
-      convert_dft_results(temp_dft_results, dft_results_q15, dft_results_q31);
-      /* Use CMSIS function */
-      arm_cmplx_mag_q31(dft_results_q31, temp_magnitude, DFT_RESULTS_COUNT / 2);
-      /* Calculate final magnitude values, calibrated with RCAL. */
-      for (i = 0; i < DFT_RESULTS_COUNT / 2 - 1; i++) {
-        magnitude_result[i] = calculate_bipolar_magnitude(temp_magnitude[0], temp_magnitude[i + 1]);
       }
-
+      q31_t measured_mag = compute_goertzel_magnitude(adc_samples, 160, 50000.0f, 160000.0f);
+      
+      magnitude_result[0] = calculate_bipolar_magnitude(cached_rcal_mag, measured_mag);
+        
       sprintf_fixed32(tmp, magnitude_result[0]);
       strcat(tmp,",");
       
       PRINT(tmp);
     } // END  e_config for loop. 
+    
+    /* Restore to default behavior (Software CRC disabled) */
+    adi_AFE_EnableSoftwareCRC(hDevice, false);
     
     PRINT("\r\n"); 
     adi_UART_BufFlush(hUartDevice);
