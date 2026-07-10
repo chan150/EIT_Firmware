@@ -52,6 +52,110 @@ License Agreement.
 #include "modes.h"
 
 #include <ADuCM350.h>
+#include <cdefADuCM350.h>
+
+/* Pre-calculated multiplexer pin register masks for 32 electrode indices (0-31) */
+static uint16_t mx1_set_lut[32];
+static uint16_t mx1_clr_lut[32];
+static uint16_t mx2_set_lut[32];
+static uint16_t mx2_clr_lut[32];
+static uint16_t mx3_gp1_set_lut[32];
+static uint16_t mx3_gp1_clr_lut[32];
+static uint16_t mx3_gp3_set_lut[32];
+static uint16_t mx3_gp3_clr_lut[32];
+static uint16_t mx4_set_lut[32];
+static uint16_t mx4_clr_lut[32];
+
+void init_multiplexer_lut(void) {
+    for (int val = 0; val < 32; val++) {
+        // MX1 (A-): Port 1, Pins 4, 3, 2, 1, 0 (bit 4, 3, 2, 1, 0)
+        uint16_t mx1_set = 0;
+        uint16_t mx1_clr = 0;
+        for (int i = 0; i < 5; i++) {
+            int pin = 4 - i;
+            int bit = (val >> (4 - i)) & 1;
+            if (bit) {
+                mx1_set |= (1 << pin);
+            } else {
+                mx1_clr |= (1 << pin);
+            }
+        }
+        mx1_set_lut[val] = mx1_set;
+        mx1_clr_lut[val] = mx1_clr;
+
+        // MX2 (V-): Port 1, Pins 10, 9, 8, 7, 6 (bit 4, 3, 2, 1, 0)
+        uint16_t mx2_set = 0;
+        uint16_t mx2_clr = 0;
+        for (int i = 0; i < 5; i++) {
+            int pin = 10 - i;
+            int bit = (val >> (4 - i)) & 1;
+            if (bit) {
+                mx2_set |= (1 << pin);
+            } else {
+                mx2_clr |= (1 << pin);
+            }
+        }
+        mx2_set_lut[val] = mx2_set;
+        mx2_clr_lut[val] = mx2_clr;
+
+        // MX3 (A+): Port 3 Pin 13 (A4) and Port 1 Pins 15, 14, 13, 12 (A3, A2, A1, A0)
+        uint16_t mx3_gp1_set = 0;
+        uint16_t mx3_gp1_clr = 0;
+        uint16_t mx3_gp3_set = 0;
+        uint16_t mx3_gp3_clr = 0;
+        
+        if ((val >> 4) & 1) {
+            mx3_gp3_set |= (1 << 13);
+        } else {
+            mx3_gp3_clr |= (1 << 13);
+        }
+        
+        for (int i = 1; i < 5; i++) {
+            int pin = 15 - (i - 1);
+            int bit = (val >> (4 - i)) & 1;
+            if (bit) {
+                mx3_gp1_set |= (1 << pin);
+            } else {
+                mx3_gp1_clr |= (1 << pin);
+            }
+        }
+        mx3_gp1_set_lut[val] = mx3_gp1_set;
+        mx3_gp1_clr_lut[val] = mx3_gp1_clr;
+        mx3_gp3_set_lut[val] = mx3_gp3_set;
+        mx3_gp3_clr_lut[val] = mx3_gp3_clr;
+
+        // MX4 (V+): Port 2 Pins 7, 8, 9, 10, 11 (bit 4, 3, 2, 1, 0)
+        uint16_t mx4_set = 0;
+        uint16_t mx4_clr = 0;
+        for (int i = 0; i < 5; i++) {
+            int pin = 7 + i;
+            int bit = (val >> (4 - i)) & 1;
+            if (bit) {
+                mx4_set |= (1 << pin);
+            } else {
+                mx4_clr |= (1 << pin);
+            }
+        }
+        mx4_set_lut[val] = mx4_set;
+        mx4_clr_lut[val] = mx4_clr;
+    }
+}
+
+static inline void multiplex_adg732_fast(const int16_t *e) {
+    uint16_t e0 = e[0]; // A+
+    uint16_t e1 = e[1]; // A-
+    uint16_t e2 = e[2]; // V+
+    uint16_t e3 = e[3]; // V-
+
+    *pREG_GPIO1_GPSET = mx1_set_lut[e1] | mx2_set_lut[e3] | mx3_gp1_set_lut[e0];
+    *pREG_GPIO1_GPCLR = mx1_clr_lut[e1] | mx2_clr_lut[e3] | mx3_gp1_clr_lut[e0];
+
+    *pREG_GPIO2_GPSET = mx4_set_lut[e2];
+    *pREG_GPIO2_GPCLR = mx4_clr_lut[e2];
+
+    *pREG_GPIO3_GPSET = mx3_gp3_set_lut[e0];
+    *pREG_GPIO3_GPCLR = mx3_gp3_clr_lut[e0];
+}
 
 //#if defined ( __ICCARM__ )  // IAR compiler...
 ///* Apply ADI MISRA Suppressions */
@@ -170,6 +274,9 @@ int main(void) {
 
     /* Test initialization */
     test_Init();
+
+    /* Initialize multiplexer LUT */
+    init_multiplexer_lut();
 
     /* Initialize static pinmuxing */
     adi_initpinmux();
@@ -508,14 +615,14 @@ void sprintf_fixed32(char *out, fixed32_t in) {
             tmp.parts.ipart++;
         }
         if (0 == tmp.parts.ipart) {
-            sprintf(out, "      -0.%04d", tmp.parts.fpart * FIXED32_LSB_SIZE);
+            sprintf(out, "-0.%04d", tmp.parts.fpart * FIXED32_LSB_SIZE);
         }
         else {
-            sprintf(out, "%8d.%04d", tmp.parts.ipart, tmp.parts.fpart * FIXED32_LSB_SIZE);
+            sprintf(out, "%d.%04d", tmp.parts.ipart, tmp.parts.fpart * FIXED32_LSB_SIZE);
         }
     }
     else {
-        sprintf(out, "%8d.%04d", in.parts.ipart, in.parts.fpart * FIXED32_LSB_SIZE);
+        sprintf(out, "%d.%04d", in.parts.ipart, in.parts.fpart * FIXED32_LSB_SIZE);
     }
 
 }
@@ -799,10 +906,10 @@ void multiplex_adg732(ADI_AFE_DEV_HANDLE  hDevice, const uint32_t *const seq,uin
     /* Calculate final magnitude value, calibrated with RTIA the gain of the instrumenation amplifier */
     rtiaAndGain = (uint32_t)((RTIA * 1.5) / INST_AMP_GAIN);
       
-    char                msg[MSG_MAXLEN_M3] = {0};
-    //sprintf(msg, "GAIN: %u Magnitudes:", rtiaAndGain);     // Now gain is 33132? 
-    sprintf(msg,"magnitudes: ");
-    PRINT(msg);
+    char                tx_buf[1024];
+    int                 tx_idx = 0;
+    strcpy(tx_buf, "magnitudes: ");
+    tx_idx = strlen(tx_buf);
     // 
     // NUMBEROFMEASURES is determined by which electrode configuration: 8,16 or 32. 
     for (uint32_t econf = 0;econf<numberofmeasures;econf++) {    
@@ -838,47 +945,7 @@ void multiplex_adg732(ADI_AFE_DEV_HANDLE  hDevice, const uint32_t *const seq,uin
       // e_conf file is written as A+,A-,V+,V-
       // I've mapped them like this so the e_conf file matches the 
       // multiplexer assignement i.e. A+ -> A+ etc. 
-      int16_t* mx1_assignment = (int16_t *)truth_table[e[1]];  // A- -> 
-      int16_t* mx2_assignment = (int16_t *)truth_table[e[3]];  // V- ->  
-      int16_t* mx3_assignment = (int16_t *)truth_table[e[0]];  // A+ -> 
-      int16_t* mx4_assignment = (int16_t *)truth_table[e[2]];  // V+ ->   
-        
-      PinMap m1_portpin;  
-      PinMap m2_portpin;  
-      PinMap m3_portpin;  
-      PinMap m4_portpin;      
-      // A4 A3 A2 A1 A0
-      for (int i=0;i<5;i++) {   
-        m1_portpin = m1_configuration[i]; // first one is a4,a3,a2,a1,a0. 
-        m2_portpin = m2_configuration[i]; // second one is        
-        m3_portpin = m3_configuration[i]; // third one is          
-        m4_portpin = m4_configuration[i]; // fourth one is 
-        // set the port pins on each multiplexer. 
-        if (mx1_assignment[i] > 0) { 
-          adi_GPIO_SetHigh(m1_portpin.Port, m1_portpin.Pins);
-        }
-        else {
-          adi_GPIO_SetLow(m1_portpin.Port, m1_portpin.Pins);
-        }
-        if (mx2_assignment[i] > 0) {
-          adi_GPIO_SetHigh(m2_portpin.Port,m2_portpin.Pins);
-        }
-        else {
-          adi_GPIO_SetLow(m2_portpin.Port,m2_portpin.Pins);  
-        }
-        if (mx3_assignment[i] > 0) {
-          adi_GPIO_SetHigh(m3_portpin.Port,m3_portpin.Pins);
-        }
-        else {
-          adi_GPIO_SetLow(m3_portpin.Port,m3_portpin.Pins);
-        }        
-        if (mx4_assignment[i] > 0) {
-          adi_GPIO_SetHigh(m4_portpin.Port,m4_portpin.Pins);
-        }
-        else {
-          adi_GPIO_SetLow(m4_portpin.Port,m4_portpin.Pins);
-        }      
-      }  // end of for loop for setting multiplexers. 
+      multiplex_adg732_fast(e); 
       
       // Now the multiplexers are set, take a measurement. 
       // Get a measurement:  
@@ -911,11 +978,20 @@ void multiplex_adg732(ADI_AFE_DEV_HANDLE  hDevice, const uint32_t *const seq,uin
         
       sprintf_fixed32(tmp, magnitude_result[0]);
       strcat(tmp,",");
-      //strcat(msg," ,"); 
-      PRINT(tmp);
+      
+      int len = strlen(tmp);
+      if (tx_idx + len >= 1024) {
+        PRINT(tx_buf);
+        tx_idx = 0;
+        memset(tx_buf, 0, 1024);
+      }
+      strcpy(tx_buf + tx_idx, tmp);
+      tx_idx += len;
     } // END  e_config for loop. 
     
-    //strcat(msg," \r\n"); 
+    if (tx_idx > 0) {
+      PRINT(tx_buf);
+    }
     PRINT("\r\n"); 
     adi_UART_BufFlush(hUartDevice);
 }
@@ -943,9 +1019,10 @@ void bipolar_adg732(ADI_AFE_DEV_HANDLE  hDevice, const uint32_t *const seq,uint3
       PRINT("number of measures is 0\n");
     }
 
-    char                msg[MSG_MAXLEN_M3] = {0};
-    sprintf(msg,"magnitudes: ");
-    PRINT(msg);
+    char                tx_buf[1024];
+    int                 tx_idx = 0;
+    strcpy(tx_buf, "magnitudes: ");
+    tx_idx = strlen(tx_buf);
     // NUMBEROFMEASURES is determined by which electrode configuration: 8,16 or 32. 
     for (uint32_t econf = 0;econf<numberofmeasures;econf++) {    
                 
@@ -981,47 +1058,7 @@ void bipolar_adg732(ADI_AFE_DEV_HANDLE  hDevice, const uint32_t *const seq,uint3
       // e_conf file is written as A+,A-,V+,V-
       // I've mapped them like this so the e_conf file matches the 
       // multiplexer assignement i.e. A+ -> A+ etc. 
-      int16_t* mx1_assignment = (int16_t *)truth_table[e[1]];  // A- -> 
-      int16_t* mx2_assignment = (int16_t *)truth_table[e[3]];  // V- ->  
-      int16_t* mx3_assignment = (int16_t *)truth_table[e[0]];  // A+ -> 
-      int16_t* mx4_assignment = (int16_t *)truth_table[e[2]];  // V+ ->   
-        
-      PinMap m1_portpin;  
-      PinMap m2_portpin;  
-      PinMap m3_portpin;  
-      PinMap m4_portpin;      
-      // A4 A3 A2 A1 A0
-      for (int i=0;i<5;i++) {   
-        m1_portpin = m1_configuration[i]; // first one is a4,a3,a2,a1,a0. 
-        m2_portpin = m2_configuration[i]; // second one is        
-        m3_portpin = m3_configuration[i]; // third one is          
-        m4_portpin = m4_configuration[i]; // fourth one is 
-        // set the port pins on each multiplexer. 
-        if (mx1_assignment[i] > 0) { 
-          adi_GPIO_SetHigh(m1_portpin.Port, m1_portpin.Pins);
-        }
-        else {
-          adi_GPIO_SetLow(m1_portpin.Port, m1_portpin.Pins);
-        }
-        if (mx2_assignment[i] > 0) {
-          adi_GPIO_SetHigh(m2_portpin.Port,m2_portpin.Pins);
-        }
-        else {
-          adi_GPIO_SetLow(m2_portpin.Port,m2_portpin.Pins);  
-        }
-        if (mx3_assignment[i] > 0) {
-          adi_GPIO_SetHigh(m3_portpin.Port,m3_portpin.Pins);
-        }
-        else {
-          adi_GPIO_SetLow(m3_portpin.Port,m3_portpin.Pins);
-        }        
-        if (mx4_assignment[i] > 0) {
-          adi_GPIO_SetHigh(m4_portpin.Port,m4_portpin.Pins);
-        }
-        else {
-          adi_GPIO_SetLow(m4_portpin.Port,m4_portpin.Pins);
-        }      
-      }  // end of for loop for setting multiplexers. 
+      multiplex_adg732_fast(e); 
       
       // Now the multiplexers are set, take a measurement. 
       // Get a measurement:  
@@ -1048,11 +1085,21 @@ void bipolar_adg732(ADI_AFE_DEV_HANDLE  hDevice, const uint32_t *const seq,uint3
 
       sprintf_fixed32(tmp, magnitude_result[0]);
       strcat(tmp,",");
-      PRINT(tmp);
+      
+      int len = strlen(tmp);
+      if (tx_idx + len >= 1024) {
+        PRINT(tx_buf);
+        tx_idx = 0;
+        memset(tx_buf, 0, 1024);
+      }
+      strcpy(tx_buf + tx_idx, tmp);
+      tx_idx += len;
             
     } // END  e_config for loop. 
     
-
+    if (tx_idx > 0) {
+      PRINT(tx_buf);
+    }
     PRINT("\r\n"); 
     adi_UART_BufFlush(hUartDevice);
 }

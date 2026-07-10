@@ -42,6 +42,8 @@ Archive member included to satisfy reference by file (symbol)
                               ../lib/libc_nano.a(lib_a-findfp.o) (__sread)
 ../lib/libc_nano.a(lib_a-strcat.o)
                               ./src/OpenEIT.o (strcat)
+../lib/libc_nano.a(lib_a-strcpy.o)
+                              ./src/OpenEIT.o (strcpy)
 ../lib/libc_nano.a(lib_a-strlen.o)
                               ./system/src/diag/Trace.o (strlen)
 ../lib/libc_nano.a(lib_a-vsnprintf.o)
@@ -3992,6 +3994,7 @@ Discarded input sections
  .group         0x00000000        0xc ./src/OpenEIT.o
  .group         0x00000000        0xc ./src/OpenEIT.o
  .group         0x00000000        0xc ./src/OpenEIT.o
+ .group         0x00000000        0xc ./src/OpenEIT.o
  .text          0x00000000        0x0 ./src/OpenEIT.o
  .data          0x00000000        0x0 ./src/OpenEIT.o
  .bss           0x00000000        0x0 ./src/OpenEIT.o
@@ -4006,6 +4009,8 @@ Discarded input sections
                 0x00000000       0x10 ./src/OpenEIT.o
  .text.delay    0x00000000        0xa ./src/OpenEIT.o
  .rodata.coeff  0x00000000        0xa ./src/OpenEIT.o
+ .rodata.truth_table
+                0x00000000      0x180 ./src/OpenEIT.o
  .data.seq_afe_mux1
                 0x00000000      0x26c ./src/OpenEIT.o
  .data.test_sequence1
@@ -4543,6 +4548,9 @@ Discarded input sections
  .text          0x00000000        0x0 ../lib/libc_nano.a(lib_a-strcat.o)
  .data          0x00000000        0x0 ../lib/libc_nano.a(lib_a-strcat.o)
  .bss           0x00000000        0x0 ../lib/libc_nano.a(lib_a-strcat.o)
+ .text          0x00000000        0x0 ../lib/libc_nano.a(lib_a-strcpy.o)
+ .data          0x00000000        0x0 ../lib/libc_nano.a(lib_a-strcpy.o)
+ .bss           0x00000000        0x0 ../lib/libc_nano.a(lib_a-strcpy.o)
  .data          0x00000000        0x0 ../lib/libc_nano.a(lib_a-strlen.o)
  .bss           0x00000000        0x0 ../lib/libc_nano.a(lib_a-strlen.o)
  .text          0x00000000        0x0 ../lib/libc_nano.a(lib_a-vsnprintf.o)
@@ -4715,7 +4723,7 @@ END GROUP
                 0x20003c00                        __Main_Stack_Limit = (__stack - __Main_Stack_Size)
                 [!provide]                        PROVIDE (_Main_Stack_Limit = __Main_Stack_Limit)
                 0x00000100                        _Minimum_Stack_Size = 0x100
-                0x20000adc                        PROVIDE (_Heap_Begin = _end_noinit)
+                0x20000d5c                        PROVIDE (_Heap_Begin = _end_noinit)
                 0x20003c00                        PROVIDE (_Heap_Limit = (__stack - __Main_Stack_Size))
 
 .isr_vector     0x00000000      0x36a
@@ -4755,7 +4763,7 @@ END GROUP
 
 .inits          0x00000800       0x28
                 0x00000800                        __data_regions_array_start = .
-                0x00000800        0x4 LONG 0x936c LOADADDR (.data)
+                0x00000800        0x4 LONG 0x923c LOADADDR (.data)
                 0x00000804        0x4 LONG 0x20000000 ADDR (.data)
                 0x00000808        0x4 LONG 0x2000036c (ADDR (.data) + SIZEOF (.data))
                 0x0000080c        0x4 LONG 0x374 LOADADDR (.data_CCMRAM)
@@ -4764,7 +4772,7 @@ END GROUP
                 0x00000818                        __data_regions_array_end = .
                 0x00000818                        __bss_regions_array_start = .
                 0x00000818        0x4 LONG 0x20000400 ADDR (.bss)
-                0x0000081c        0x4 LONG 0x20000adc (ADDR (.bss) + SIZEOF (.bss))
+                0x0000081c        0x4 LONG 0x20000d5c (ADDR (.bss) + SIZEOF (.bss))
                 0x00000820        0x4 LONG 0x10000000 ADDR (.bss_CCMRAM)
                 0x00000824        0x4 LONG 0x10000000 (ADDR (.bss_CCMRAM) + SIZEOF (.bss_CCMRAM))
                 0x00000828                        __bss_regions_array_end = .
@@ -4790,7 +4798,7 @@ END GROUP
 .flashtext
  *(.flashtext .flashtext.*)
 
-.text           0x00000828     0x8b44
+.text           0x00000828     0x8a14
  *(.text .text.*)
  .text._exit    0x00000828        0x2 ./system/src/newlib/_exit.o
                 0x00000828                _exit
@@ -5224,413 +5232,417 @@ END GROUP
  .text.WakeUp_Int_Handler
                 0x00002a68       0x34 ./system/src/ADuCM350/wut.o
                 0x00002a68                WakeUp_Int_Handler
+ .text.multiplex_adg732_fast
+                0x00002a9c       0xb0 ./src/OpenEIT.o
+ .text.init_multiplexer_lut
+                0x00002b4c      0x178 ./src/OpenEIT.o
+                0x00002b4c                init_multiplexer_lut
  .text.convert_dft_results
-                0x00002a9c       0x56 ./src/OpenEIT.o
-                0x00002a9c                convert_dft_results
+                0x00002cc4       0x56 ./src/OpenEIT.o
+                0x00002cc4                convert_dft_results
  .text.calculate_magnitude
-                0x00002af2       0x4a ./src/OpenEIT.o
-                0x00002af2                calculate_magnitude
+                0x00002d1a       0x4a ./src/OpenEIT.o
+                0x00002d1a                calculate_magnitude
  .text.calculate_bipolar_magnitude
-                0x00002b3c       0x70 ./src/OpenEIT.o
-                0x00002b3c                calculate_bipolar_magnitude
+                0x00002d64       0x70 ./src/OpenEIT.o
+                0x00002d64                calculate_bipolar_magnitude
  .text.sprintf_fixed32
-                0x00002bac       0x80 ./src/OpenEIT.o
-                0x00002bac                sprintf_fixed32
+                0x00002dd4       0x80 ./src/OpenEIT.o
+                0x00002dd4                sprintf_fixed32
  .text.test_print
-                0x00002c2c       0x24 ./src/OpenEIT.o
-                0x00002c2c                test_print
+                0x00002e54       0x24 ./src/OpenEIT.o
+                0x00002e54                test_print
  .text.uart_Init
-                0x00002c50       0x94 ./src/OpenEIT.o
-                0x00002c50                uart_Init
+                0x00002e78       0x94 ./src/OpenEIT.o
+                0x00002e78                uart_Init
  .text.bioimpedance_spectroscopy
-                0x00002ce4      0x12c ./src/OpenEIT.o
-                0x00002ce4                bioimpedance_spectroscopy
+                0x00002f0c      0x12c ./src/OpenEIT.o
+                0x00002f0c                bioimpedance_spectroscopy
  .text.time_series_bipolar
-                0x00002e10       0xa4 ./src/OpenEIT.o
-                0x00002e10                time_series_bipolar
+                0x00003038       0xa4 ./src/OpenEIT.o
+                0x00003038                time_series_bipolar
  .text.time_series
-                0x00002eb4       0x84 ./src/OpenEIT.o
-                0x00002eb4                time_series
+                0x000030dc       0x84 ./src/OpenEIT.o
+                0x000030dc                time_series
  .text.multiplex_adg732
-                0x00002f38      0x25c ./src/OpenEIT.o
-                0x00002f38                multiplex_adg732
+                0x00003160      0x16c ./src/OpenEIT.o
+                0x00003160                multiplex_adg732
  .text.bipolar_adg732
-                0x00003194      0x268 ./src/OpenEIT.o
-                0x00003194                bipolar_adg732
+                0x000032cc      0x178 ./src/OpenEIT.o
+                0x000032cc                bipolar_adg732
  .text.init_mode_bis
-                0x000033fc      0x138 ./src/OpenEIT.o
-                0x000033fc                init_mode_bis
+                0x00003444      0x138 ./src/OpenEIT.o
+                0x00003444                init_mode_bis
  .text.init_GPIO_ports
-                0x00003534      0x34c ./src/OpenEIT.o
-                0x00003534                init_GPIO_ports
+                0x0000357c      0x34c ./src/OpenEIT.o
+                0x0000357c                init_GPIO_ports
  .text.init_mode_bipolar
-                0x00003880       0xdc ./src/OpenEIT.o
-                0x00003880                init_mode_bipolar
+                0x000038c8       0xdc ./src/OpenEIT.o
+                0x000038c8                init_mode_bipolar
  .text.init_mode_tetramux
-                0x0000395c      0x194 ./src/OpenEIT.o
-                0x0000395c                init_mode_tetramux
- .text.main     0x00003af0      0x1e4 ./src/OpenEIT.o
-                0x00003af0                main
+                0x000039a4      0x194 ./src/OpenEIT.o
+                0x000039a4                init_mode_tetramux
+ .text.main     0x00003b38      0x1e8 ./src/OpenEIT.o
+                0x00003b38                main
  .text.adi_initpinmux
-                0x00003cd4       0x10 ./src/PinMux.o
-                0x00003cd4                adi_initpinmux
- .text.quit     0x00003ce4        0x8 ./src/test_common.o
+                0x00003d20       0x10 ./src/PinMux.o
+                0x00003d20                adi_initpinmux
+ .text.quit     0x00003d30        0x8 ./src/test_common.o
  .text.test_Fail
-                0x00003cec       0x30 ./src/test_common.o
-                0x00003cec                test_Fail
+                0x00003d38       0x30 ./src/test_common.o
+                0x00003d38                test_Fail
  .text.test_Init
-                0x00003d1c       0x44 ./src/test_common.o
-                0x00003d1c                test_Init
+                0x00003d68       0x44 ./src/test_common.o
+                0x00003d68                test_Init
  .text.findslot
-                0x00003d60       0x34 ../lib/librdimon_nano.a(rdimon-syscalls.o)
+                0x00003dac       0x34 ../lib/librdimon_nano.a(rdimon-syscalls.o)
  .text.checkerror
-                0x00003d94       0x20 ../lib/librdimon_nano.a(rdimon-syscalls.o)
- .text.error    0x00003db4       0x1c ../lib/librdimon_nano.a(rdimon-syscalls.o)
+                0x00003de0       0x20 ../lib/librdimon_nano.a(rdimon-syscalls.o)
+ .text.error    0x00003e00       0x1c ../lib/librdimon_nano.a(rdimon-syscalls.o)
  .text._swiread
-                0x00003dd0       0x20 ../lib/librdimon_nano.a(rdimon-syscalls.o)
-                0x00003dd0                _swiread
- .text._read    0x00003df0       0x34 ../lib/librdimon_nano.a(rdimon-syscalls.o)
-                0x00003df0                _read
+                0x00003e1c       0x20 ../lib/librdimon_nano.a(rdimon-syscalls.o)
+                0x00003e1c                _swiread
+ .text._read    0x00003e3c       0x34 ../lib/librdimon_nano.a(rdimon-syscalls.o)
+                0x00003e3c                _read
  .text._swilseek
-                0x00003e24       0x7a ../lib/librdimon_nano.a(rdimon-syscalls.o)
-                0x00003e24                _swilseek
- .text._lseek   0x00003e9e        0x4 ../lib/librdimon_nano.a(rdimon-syscalls.o)
-                0x00003e9e                _lseek
+                0x00003e70       0x7a ../lib/librdimon_nano.a(rdimon-syscalls.o)
+                0x00003e70                _swilseek
+ .text._lseek   0x00003eea        0x4 ../lib/librdimon_nano.a(rdimon-syscalls.o)
+                0x00003eea                _lseek
  .text._swiwrite
-                0x00003ea2       0x20 ../lib/librdimon_nano.a(rdimon-syscalls.o)
-                0x00003ea2                _swiwrite
- .text._write   0x00003ec2       0x40 ../lib/librdimon_nano.a(rdimon-syscalls.o)
-                0x00003ec2                _write
+                0x00003eee       0x20 ../lib/librdimon_nano.a(rdimon-syscalls.o)
+                0x00003eee                _swiwrite
+ .text._write   0x00003f0e       0x40 ../lib/librdimon_nano.a(rdimon-syscalls.o)
+                0x00003f0e                _write
  .text._swiclose
-                0x00003f02       0x1c ../lib/librdimon_nano.a(rdimon-syscalls.o)
-                0x00003f02                _swiclose
- *fill*         0x00003f1e        0x2 
- .text._close   0x00003f20       0x4c ../lib/librdimon_nano.a(rdimon-syscalls.o)
-                0x00003f20                _close
+                0x00003f4e       0x1c ../lib/librdimon_nano.a(rdimon-syscalls.o)
+                0x00003f4e                _swiclose
+ *fill*         0x00003f6a        0x2 
+ .text._close   0x00003f6c       0x4c ../lib/librdimon_nano.a(rdimon-syscalls.o)
+                0x00003f6c                _close
  .text._swistat
-                0x00003f6c       0x42 ../lib/librdimon_nano.a(rdimon-syscalls.o)
-                0x00003f6c                _swistat
- .text._stat    0x00003fae       0x3a ../lib/librdimon_nano.a(rdimon-syscalls.o)
-                0x00003fae                _stat
+                0x00003fb8       0x42 ../lib/librdimon_nano.a(rdimon-syscalls.o)
+                0x00003fb8                _swistat
+ .text._stat    0x00003ffa       0x3a ../lib/librdimon_nano.a(rdimon-syscalls.o)
+                0x00003ffa                _stat
  .text._swiopen
-                0x00003fe8       0xb4 ../lib/librdimon_nano.a(rdimon-syscalls.o)
-                0x00003fe8                _swiopen
+                0x00004034       0xb4 ../lib/librdimon_nano.a(rdimon-syscalls.o)
+                0x00004034                _swiopen
  .text._get_semihosting_exts
-                0x0000409c       0xb4 ../lib/librdimon_nano.a(rdimon-syscalls.o)
-                0x0000409c                _get_semihosting_exts
+                0x000040e8       0xb4 ../lib/librdimon_nano.a(rdimon-syscalls.o)
+                0x000040e8                _get_semihosting_exts
  .text.initialise_semihosting_exts
-                0x00004150       0x34 ../lib/librdimon_nano.a(rdimon-syscalls.o)
+                0x0000419c       0x34 ../lib/librdimon_nano.a(rdimon-syscalls.o)
  .text._has_ext_stdout_stderr
-                0x00004184       0x18 ../lib/librdimon_nano.a(rdimon-syscalls.o)
-                0x00004184                _has_ext_stdout_stderr
+                0x000041d0       0x18 ../lib/librdimon_nano.a(rdimon-syscalls.o)
+                0x000041d0                _has_ext_stdout_stderr
  .text.initialise_monitor_handles
-                0x0000419c       0xbc ../lib/librdimon_nano.a(rdimon-syscalls.o)
-                0x0000419c                initialise_monitor_handles
- .text          0x00004258      0x378 ../lib/libgcc.a(_arm_addsubdf3.o)
-                0x00004258                __aeabi_drsub
-                0x00004260                __subdf3
-                0x00004260                __aeabi_dsub
-                0x00004264                __aeabi_dadd
-                0x00004264                __adddf3
-                0x000044dc                __aeabi_ui2d
-                0x000044dc                __floatunsidf
-                0x000044fc                __floatsidf
-                0x000044fc                __aeabi_i2d
-                0x00004520                __extendsfdf2
-                0x00004520                __aeabi_f2d
-                0x00004564                __aeabi_ul2d
-                0x00004564                __floatundidf
-                0x00004574                __aeabi_l2d
-                0x00004574                __floatdidf
- .text          0x000045d0       0x40 ../lib/libgcc.a(_arm_fixunsdfsi.o)
-                0x000045d0                __fixunsdfsi
-                0x000045d0                __aeabi_d2uiz
- .text          0x00004610       0xa0 ../lib/libgcc.a(_aeabi_ldivmod.o)
-                0x00004610                __aeabi_ldivmod
- .text          0x000046b0       0x30 ../lib/libgcc.a(_aeabi_uldivmod.o)
-                0x000046b0                __aeabi_uldivmod
- .text          0x000046e0      0x2d0 ../lib/libgcc.a(_udivmoddi4.o)
-                0x000046e0                __udivmoddi4
- .text          0x000049b0        0x4 ../lib/libgcc.a(_dvmd_tls.o)
-                0x000049b0                __aeabi_ldiv0
-                0x000049b0                __aeabi_idiv0
- .text.__errno  0x000049b4        0xc ../lib/libc_nano.a(lib_a-errno.o)
-                0x000049b4                __errno
- .text.std      0x000049c0       0x48 ../lib/libc_nano.a(lib_a-findfp.o)
+                0x000041e8       0xbc ../lib/librdimon_nano.a(rdimon-syscalls.o)
+                0x000041e8                initialise_monitor_handles
+ .text          0x000042a4      0x378 ../lib/libgcc.a(_arm_addsubdf3.o)
+                0x000042a4                __aeabi_drsub
+                0x000042ac                __subdf3
+                0x000042ac                __aeabi_dsub
+                0x000042b0                __aeabi_dadd
+                0x000042b0                __adddf3
+                0x00004528                __aeabi_ui2d
+                0x00004528                __floatunsidf
+                0x00004548                __floatsidf
+                0x00004548                __aeabi_i2d
+                0x0000456c                __extendsfdf2
+                0x0000456c                __aeabi_f2d
+                0x000045b0                __aeabi_ul2d
+                0x000045b0                __floatundidf
+                0x000045c0                __aeabi_l2d
+                0x000045c0                __floatdidf
+ .text          0x0000461c       0x40 ../lib/libgcc.a(_arm_fixunsdfsi.o)
+                0x0000461c                __fixunsdfsi
+                0x0000461c                __aeabi_d2uiz
+ .text          0x0000465c       0xa0 ../lib/libgcc.a(_aeabi_ldivmod.o)
+                0x0000465c                __aeabi_ldivmod
+ .text          0x000046fc       0x30 ../lib/libgcc.a(_aeabi_uldivmod.o)
+                0x000046fc                __aeabi_uldivmod
+ .text          0x0000472c      0x2d0 ../lib/libgcc.a(_udivmoddi4.o)
+                0x0000472c                __udivmoddi4
+ .text          0x000049fc        0x4 ../lib/libgcc.a(_dvmd_tls.o)
+                0x000049fc                __aeabi_ldiv0
+                0x000049fc                __aeabi_idiv0
+ .text.__errno  0x00004a00        0xc ../lib/libc_nano.a(lib_a-errno.o)
+                0x00004a00                __errno
+ .text.std      0x00004a0c       0x48 ../lib/libc_nano.a(lib_a-findfp.o)
  .text._cleanup_r
-                0x00004a08        0xc ../lib/libc_nano.a(lib_a-findfp.o)
-                0x00004a08                _cleanup_r
+                0x00004a54        0xc ../lib/libc_nano.a(lib_a-findfp.o)
+                0x00004a54                _cleanup_r
  .text.__sfmoreglue
-                0x00004a14       0x2c ../lib/libc_nano.a(lib_a-findfp.o)
-                0x00004a14                __sfmoreglue
- .text.__sinit  0x00004a40       0x60 ../lib/libc_nano.a(lib_a-findfp.o)
-                0x00004a40                __sinit
- .text.__sfp    0x00004aa0       0x78 ../lib/libc_nano.a(lib_a-findfp.o)
-                0x00004aa0                __sfp
+                0x00004a60       0x2c ../lib/libc_nano.a(lib_a-findfp.o)
+                0x00004a60                __sfmoreglue
+ .text.__sinit  0x00004a8c       0x60 ../lib/libc_nano.a(lib_a-findfp.o)
+                0x00004a8c                __sinit
+ .text.__sfp    0x00004aec       0x78 ../lib/libc_nano.a(lib_a-findfp.o)
+                0x00004aec                __sfp
  .text._fwalk_reent
-                0x00004b18       0x3c ../lib/libc_nano.a(lib_a-fwalk.o)
-                0x00004b18                _fwalk_reent
- .text.memcpy   0x00004b54       0x16 ../lib/libc_nano.a(lib_a-memcpy-stub.o)
-                0x00004b54                memcpy
- .text.memset   0x00004b6a       0x10 ../lib/libc_nano.a(lib_a-memset.o)
-                0x00004b6a                memset
- *fill*         0x00004b7a        0x2 
+                0x00004b64       0x3c ../lib/libc_nano.a(lib_a-fwalk.o)
+                0x00004b64                _fwalk_reent
+ .text.memcpy   0x00004ba0       0x16 ../lib/libc_nano.a(lib_a-memcpy-stub.o)
+                0x00004ba0                memcpy
+ .text.memset   0x00004bb6       0x10 ../lib/libc_nano.a(lib_a-memset.o)
+                0x00004bb6                memset
+ *fill*         0x00004bc6        0x2 
  .text._malloc_r
-                0x00004b7c       0xb4 ../lib/libc_nano.a(lib_a-nano-mallocr.o)
-                0x00004b7c                _malloc_r
- .text._sbrk_r  0x00004c30       0x20 ../lib/libc_nano.a(lib_a-sbrkr.o)
-                0x00004c30                _sbrk_r
- .text.sprintf  0x00004c50       0x40 ../lib/libc_nano.a(lib_a-sprintf.o)
-                0x00004c50                sprintf
-                0x00004c50                siprintf
- .text.__sread  0x00004c90       0x22 ../lib/libc_nano.a(lib_a-stdio.o)
-                0x00004c90                __sread
+                0x00004bc8       0xb4 ../lib/libc_nano.a(lib_a-nano-mallocr.o)
+                0x00004bc8                _malloc_r
+ .text._sbrk_r  0x00004c7c       0x20 ../lib/libc_nano.a(lib_a-sbrkr.o)
+                0x00004c7c                _sbrk_r
+ .text.sprintf  0x00004c9c       0x40 ../lib/libc_nano.a(lib_a-sprintf.o)
+                0x00004c9c                sprintf
+                0x00004c9c                siprintf
+ .text.__sread  0x00004cdc       0x22 ../lib/libc_nano.a(lib_a-stdio.o)
+                0x00004cdc                __sread
  .text.__swrite
-                0x00004cb2       0x38 ../lib/libc_nano.a(lib_a-stdio.o)
-                0x00004cb2                __swrite
- .text.__sseek  0x00004cea       0x24 ../lib/libc_nano.a(lib_a-stdio.o)
-                0x00004cea                __sseek
+                0x00004cfe       0x38 ../lib/libc_nano.a(lib_a-stdio.o)
+                0x00004cfe                __swrite
+ .text.__sseek  0x00004d36       0x24 ../lib/libc_nano.a(lib_a-stdio.o)
+                0x00004d36                __sseek
  .text.__sclose
-                0x00004d0e        0x8 ../lib/libc_nano.a(lib_a-stdio.o)
-                0x00004d0e                __sclose
- .text.strcat   0x00004d16       0x1e ../lib/libc_nano.a(lib_a-strcat.o)
-                0x00004d16                strcat
- .text          0x00004d34       0x10 ../lib/libc_nano.a(lib_a-strlen.o)
-                0x00004d34                strlen
+                0x00004d5a        0x8 ../lib/libc_nano.a(lib_a-stdio.o)
+                0x00004d5a                __sclose
+ .text.strcat   0x00004d62       0x1e ../lib/libc_nano.a(lib_a-strcat.o)
+                0x00004d62                strcat
+ .text.strcpy   0x00004d80       0x10 ../lib/libc_nano.a(lib_a-strcpy.o)
+                0x00004d80                strcpy
+ .text          0x00004d90       0x10 ../lib/libc_nano.a(lib_a-strlen.o)
+                0x00004d90                strlen
  .text._vsnprintf_r
-                0x00004d44       0x58 ../lib/libc_nano.a(lib_a-vsnprintf.o)
-                0x00004d44                _vsnprintf_r
-                0x00004d44                _vsniprintf_r
+                0x00004da0       0x58 ../lib/libc_nano.a(lib_a-vsnprintf.o)
+                0x00004da0                _vsnprintf_r
+                0x00004da0                _vsniprintf_r
  .text.vsnprintf
-                0x00004d9c       0x1c ../lib/libc_nano.a(lib_a-vsnprintf.o)
-                0x00004d9c                vsnprintf
-                0x00004d9c                vsniprintf
+                0x00004df8       0x1c ../lib/libc_nano.a(lib_a-vsnprintf.o)
+                0x00004df8                vsnprintf
+                0x00004df8                vsniprintf
  .text._write_r
-                0x00004db8       0x24 ../lib/libc_nano.a(lib_a-writer.o)
-                0x00004db8                _write_r
+                0x00004e14       0x24 ../lib/libc_nano.a(lib_a-writer.o)
+                0x00004e14                _write_r
  .text._close_r
-                0x00004ddc       0x20 ../lib/libc_nano.a(lib_a-closer.o)
-                0x00004ddc                _close_r
+                0x00004e38       0x20 ../lib/libc_nano.a(lib_a-closer.o)
+                0x00004e38                _close_r
  .text.__sflush_r
-                0x00004dfc      0x10c ../lib/libc_nano.a(lib_a-fflush.o)
-                0x00004dfc                __sflush_r
+                0x00004e58      0x10c ../lib/libc_nano.a(lib_a-fflush.o)
+                0x00004e58                __sflush_r
  .text._fflush_r
-                0x00004f08       0x54 ../lib/libc_nano.a(lib_a-fflush.o)
-                0x00004f08                _fflush_r
+                0x00004f64       0x54 ../lib/libc_nano.a(lib_a-fflush.o)
+                0x00004f64                _fflush_r
  .text._lseek_r
-                0x00004f5c       0x24 ../lib/libc_nano.a(lib_a-lseekr.o)
-                0x00004f5c                _lseek_r
+                0x00004fb8       0x24 ../lib/libc_nano.a(lib_a-lseekr.o)
+                0x00004fb8                _lseek_r
  .text.__malloc_lock
-                0x00004f80        0x2 ../lib/libc_nano.a(lib_a-mlock.o)
-                0x00004f80                __malloc_lock
+                0x00004fdc        0x2 ../lib/libc_nano.a(lib_a-mlock.o)
+                0x00004fdc                __malloc_lock
  .text.__malloc_unlock
-                0x00004f82        0x2 ../lib/libc_nano.a(lib_a-mlock.o)
-                0x00004f82                __malloc_unlock
- .text._free_r  0x00004f84       0x98 ../lib/libc_nano.a(lib_a-nano-freer.o)
-                0x00004f84                _free_r
+                0x00004fde        0x2 ../lib/libc_nano.a(lib_a-mlock.o)
+                0x00004fde                __malloc_unlock
+ .text._free_r  0x00004fe0       0x98 ../lib/libc_nano.a(lib_a-nano-freer.o)
+                0x00004fe0                _free_r
  .text.__ssputs_r
-                0x0000501c       0xb4 ../lib/libc_nano.a(lib_a-nano-svfprintf.o)
-                0x0000501c                __ssputs_r
+                0x00005078       0xb4 ../lib/libc_nano.a(lib_a-nano-svfprintf.o)
+                0x00005078                __ssputs_r
  .text._svfprintf_r
-                0x000050d0      0x1f0 ../lib/libc_nano.a(lib_a-nano-svfprintf.o)
-                0x000050d0                _svfprintf_r
-                0x000050d0                _svfiprintf_r
+                0x0000512c      0x1f0 ../lib/libc_nano.a(lib_a-nano-svfprintf.o)
+                0x0000512c                _svfprintf_r
+                0x0000512c                _svfiprintf_r
  .text._printf_common
-                0x000052c0       0xec ../lib/libc_nano.a(lib_a-nano-vfprintf_i.o)
-                0x000052c0                _printf_common
+                0x0000531c       0xec ../lib/libc_nano.a(lib_a-nano-vfprintf_i.o)
+                0x0000531c                _printf_common
  .text._printf_i
-                0x000053ac      0x224 ../lib/libc_nano.a(lib_a-nano-vfprintf_i.o)
-                0x000053ac                _printf_i
- .text._read_r  0x000055d0       0x24 ../lib/libc_nano.a(lib_a-readr.o)
-                0x000055d0                _read_r
- .text.memchr   0x000055f4       0x1c ../lib/libc_nano.a(lib_a-memchr-stub.o)
-                0x000055f4                memchr
- .text.memmove  0x00005610       0x32 ../lib/libc_nano.a(lib_a-memmove.o)
-                0x00005610                memmove
+                0x00005408      0x224 ../lib/libc_nano.a(lib_a-nano-vfprintf_i.o)
+                0x00005408                _printf_i
+ .text._read_r  0x0000562c       0x24 ../lib/libc_nano.a(lib_a-readr.o)
+                0x0000562c                _read_r
+ .text.memchr   0x00005650       0x1c ../lib/libc_nano.a(lib_a-memchr-stub.o)
+                0x00005650                memchr
+ .text.memmove  0x0000566c       0x32 ../lib/libc_nano.a(lib_a-memmove.o)
+                0x0000566c                memmove
  .text._realloc_r
-                0x00005642       0x4c ../lib/libc_nano.a(lib_a-nano-reallocr.o)
-                0x00005642                _realloc_r
+                0x0000569e       0x4c ../lib/libc_nano.a(lib_a-nano-reallocr.o)
+                0x0000569e                _realloc_r
  .text._malloc_usable_size_r
-                0x0000568e       0x10 ../lib/libc_nano.a(lib_a-nano-msizer.o)
-                0x0000568e                _malloc_usable_size_r
- *fill*         0x0000569e        0x2 
+                0x000056ea       0x10 ../lib/libc_nano.a(lib_a-nano-msizer.o)
+                0x000056ea                _malloc_usable_size_r
+ *fill*         0x000056fa        0x2 
  .text.arm_q15_to_q31
-                0x000056a0       0x68 ../lib/libarm_cortexM3l_math.a(arm_q15_to_q31.o)
-                0x000056a0                arm_q15_to_q31
+                0x000056fc       0x68 ../lib/libarm_cortexM3l_math.a(arm_q15_to_q31.o)
+                0x000056fc                arm_q15_to_q31
  .text.arm_cmplx_mag_q31
-                0x00005708       0xf4 ../lib/libarm_cortexM3l_math.a(arm_cmplx_mag_q31.o)
-                0x00005708                arm_cmplx_mag_q31
+                0x00005764       0xf4 ../lib/libarm_cortexM3l_math.a(arm_cmplx_mag_q31.o)
+                0x00005764                arm_cmplx_mag_q31
  .text.arm_sqrt_q31
-                0x000057fc       0xf8 ../lib/libarm_cortexM3l_math.a(arm_sqrt_q31.o)
-                0x000057fc                arm_sqrt_q31
- .text          0x000058f4      0x21c ../lib/libgcc.a(_arm_addsubsf3.o)
-                0x000058f4                __aeabi_frsub
-                0x000058fc                __aeabi_fsub
-                0x000058fc                __subsf3
-                0x00005900                __aeabi_fadd
-                0x00005900                __addsf3
-                0x00005a60                __aeabi_ui2f
-                0x00005a60                __floatunsisf
-                0x00005a68                __floatsisf
-                0x00005a68                __aeabi_i2f
-                0x00005a84                __aeabi_ul2f
-                0x00005a84                __floatundisf
-                0x00005a94                __aeabi_l2f
-                0x00005a94                __floatdisf
- .text          0x00005b10      0x2a0 ../lib/libgcc.a(_arm_muldivsf3.o)
-                0x00005b10                __mulsf3
-                0x00005b10                __aeabi_fmul
-                0x00005c78                __divsf3
-                0x00005c78                __aeabi_fdiv
- .text          0x00005db0       0x4c ../lib/libgcc.a(_arm_fixsfsi.o)
-                0x00005db0                __fixsfsi
-                0x00005db0                __aeabi_f2iz
+                0x00005858       0xf8 ../lib/libarm_cortexM3l_math.a(arm_sqrt_q31.o)
+                0x00005858                arm_sqrt_q31
+ .text          0x00005950      0x21c ../lib/libgcc.a(_arm_addsubsf3.o)
+                0x00005950                __aeabi_frsub
+                0x00005958                __aeabi_fsub
+                0x00005958                __subsf3
+                0x0000595c                __aeabi_fadd
+                0x0000595c                __addsf3
+                0x00005abc                __aeabi_ui2f
+                0x00005abc                __floatunsisf
+                0x00005ac4                __floatsisf
+                0x00005ac4                __aeabi_i2f
+                0x00005ae0                __aeabi_ul2f
+                0x00005ae0                __floatundisf
+                0x00005af0                __aeabi_l2f
+                0x00005af0                __floatdisf
+ .text          0x00005b6c      0x2a0 ../lib/libgcc.a(_arm_muldivsf3.o)
+                0x00005b6c                __mulsf3
+                0x00005b6c                __aeabi_fmul
+                0x00005cd4                __divsf3
+                0x00005cd4                __aeabi_fdiv
+ .text          0x00005e0c       0x4c ../lib/libgcc.a(_arm_fixsfsi.o)
+                0x00005e0c                __fixsfsi
+                0x00005e0c                __aeabi_f2iz
  *(.rodata .rodata.* .constdata .constdata.*)
  .rodata.dumpExceptionStack.str1.4
-                0x00005dfc      0x9f2 ./system/src/cortexm/exception_handlers.o
+                0x00005e58      0x9e6 ./system/src/cortexm/exception_handlers.o
                                 0x11a (size before relaxing)
  .rodata.str1.4
-                0x000067ee        0x0 ./system/src/cortexm/exception_handlers.o
+                0x0000683e        0x0 ./system/src/cortexm/exception_handlers.o
                                  0x2a (size before relaxing)
- *fill*         0x000067ee        0x2 
+ *fill*         0x0000683e        0x2 
  .rodata.seq_afe_excitechancalatten2
-                0x000067f0       0x1c ./system/src/ADuCM350/afe_lib.o
-                0x000067f0                seq_afe_excitechancalatten2
+                0x00006840       0x1c ./system/src/ADuCM350/afe_lib.o
+                0x00006840                seq_afe_excitechancalatten2
  .rodata.seq_afe_excitechancalatten1
-                0x0000680c       0x28 ./system/src/ADuCM350/afe_lib.o
-                0x0000680c                seq_afe_excitechancalatten1
+                0x0000685c       0x28 ./system/src/ADuCM350/afe_lib.o
+                0x0000685c                seq_afe_excitechancalatten1
  .rodata.seq_afe_tiachancal5
-                0x00006834       0x1c ./system/src/ADuCM350/afe_lib.o
-                0x00006834                seq_afe_tiachancal5
+                0x00006884       0x1c ./system/src/ADuCM350/afe_lib.o
+                0x00006884                seq_afe_tiachancal5
  .rodata.seq_afe_tiachancal4
-                0x00006850       0x24 ./system/src/ADuCM350/afe_lib.o
-                0x00006850                seq_afe_tiachancal4
+                0x000068a0       0x24 ./system/src/ADuCM350/afe_lib.o
+                0x000068a0                seq_afe_tiachancal4
  .rodata.seq_afe_tiachancal3
-                0x00006874       0x20 ./system/src/ADuCM350/afe_lib.o
-                0x00006874                seq_afe_tiachancal3
+                0x000068c4       0x20 ./system/src/ADuCM350/afe_lib.o
+                0x000068c4                seq_afe_tiachancal3
  .rodata.seq_afe_tiachancal2
-                0x00006894       0x20 ./system/src/ADuCM350/afe_lib.o
-                0x00006894                seq_afe_tiachancal2
+                0x000068e4       0x20 ./system/src/ADuCM350/afe_lib.o
+                0x000068e4                seq_afe_tiachancal2
  .rodata.seq_afe_tiachancal1
-                0x000068b4       0x24 ./system/src/ADuCM350/afe_lib.o
-                0x000068b4                seq_afe_tiachancal1
+                0x00006904       0x24 ./system/src/ADuCM350/afe_lib.o
+                0x00006904                seq_afe_tiachancal1
  .rodata.seq_afe_excitechanpowerup
-                0x000068d8       0x10 ./system/src/ADuCM350/afe_lib.o
-                0x000068d8                seq_afe_excitechanpowerup
+                0x00006928       0x10 ./system/src/ADuCM350/afe_lib.o
+                0x00006928                seq_afe_excitechanpowerup
  .rodata.seq_afe_tempsenschancal
-                0x000068e8       0x58 ./system/src/ADuCM350/afe_lib.o
-                0x000068e8                seq_afe_tempsenschancal
+                0x00006938       0x58 ./system/src/ADuCM350/afe_lib.o
+                0x00006938                seq_afe_tempsenschancal
  .rodata.seq_afe_auxchancal
-                0x00006940       0x40 ./system/src/ADuCM350/afe_lib.o
-                0x00006940                seq_afe_auxchancal
+                0x00006990       0x40 ./system/src/ADuCM350/afe_lib.o
+                0x00006990                seq_afe_auxchancal
  .rodata.seq_afe_powerup
-                0x00006980       0x24 ./system/src/ADuCM350/afe_lib.o
-                0x00006980                seq_afe_powerup
- .rodata        0x000069a4       0x14 ./system/src/ADuCM350/gpio.o
- .rodata        0x000069b8       0x7e ./system/src/ADuCM350/uart.o
- *fill*         0x00006a36        0x2 
+                0x000069d0       0x24 ./system/src/ADuCM350/afe_lib.o
+                0x000069d0                seq_afe_powerup
+ .rodata        0x000069f4       0x14 ./system/src/ADuCM350/gpio.o
+ .rodata        0x00006a08       0x7e ./system/src/ADuCM350/uart.o
+ *fill*         0x00006a86        0x2 
  .rodata.gWdtStaticInitData
-                0x00006a38        0x6 ./system/src/ADuCM350/wdt.o
+                0x00006a88        0x6 ./system/src/ADuCM350/wdt.o
  .rodata.sprintf_fixed32.str1.4
-                0x00006a3e        0x0 ./src/OpenEIT.o
-                                 0x19 (size before relaxing)
+                0x00006a8e        0x0 ./src/OpenEIT.o
+                                 0x10 (size before relaxing)
  .rodata.uart_Init.str1.4
-                0x00006a3e        0x0 ./src/OpenEIT.o
+                0x00006a8e        0x0 ./src/OpenEIT.o
                                  0x5d (size before relaxing)
  .rodata.bioimpedance_spectroscopy.str1.4
-                0x00006a3e        0x0 ./src/OpenEIT.o
+                0x00006a8e        0x0 ./src/OpenEIT.o
                                  0x38 (size before relaxing)
  .rodata.time_series_bipolar.str1.4
-                0x00006a3e        0x0 ./src/OpenEIT.o
+                0x00006a8e        0x0 ./src/OpenEIT.o
                                  0x16 (size before relaxing)
  .rodata.multiplex_adg732.str1.4
-                0x00006a3e        0x0 ./src/OpenEIT.o
+                0x00006a8e        0x0 ./src/OpenEIT.o
                                  0x53 (size before relaxing)
  .rodata.init_mode_bis.str1.4
-                0x00006a3e        0x0 ./src/OpenEIT.o
+                0x00006a8e        0x0 ./src/OpenEIT.o
                                 0x1f4 (size before relaxing)
  .rodata.init_GPIO_ports.str1.4
-                0x00006a3e        0x0 ./src/OpenEIT.o
+                0x00006a8e        0x0 ./src/OpenEIT.o
                                 0x112 (size before relaxing)
  .rodata.init_mode_bipolar.str1.4
-                0x00006a3e        0x0 ./src/OpenEIT.o
+                0x00006a8e        0x0 ./src/OpenEIT.o
                                  0x9e (size before relaxing)
  .rodata.init_mode_tetramux.str1.4
-                0x00006a3e        0x0 ./src/OpenEIT.o
+                0x00006a8e        0x0 ./src/OpenEIT.o
                                  0xd9 (size before relaxing)
  .rodata.main.str1.4
-                0x00006a3e        0x0 ./src/OpenEIT.o
+                0x00006a8e        0x0 ./src/OpenEIT.o
                                 0x224 (size before relaxing)
  .rodata.str1.4
-                0x00006a3e        0x0 ./src/OpenEIT.o
+                0x00006a8e        0x0 ./src/OpenEIT.o
                                  0x6a (size before relaxing)
- *fill*         0x00006a3e        0x2 
+ *fill*         0x00006a8e        0x2 
  .rodata.multifrequency
-                0x00006a40       0x78 ./src/OpenEIT.o
-                0x00006a40                multifrequency
- .rodata.truth_table
-                0x00006ab8      0x180 ./src/OpenEIT.o
-                0x00006ab8                truth_table
+                0x00006a90       0x78 ./src/OpenEIT.o
+                0x00006a90                multifrequency
  .rodata.electrode_configuration_32_opposition
-                0x00006c38     0x1e00 ./src/OpenEIT.o
-                0x00006c38                electrode_configuration_32_opposition
+                0x00006b08     0x1e00 ./src/OpenEIT.o
+                0x00006b08                electrode_configuration_32_opposition
  .rodata.electrode_configuration_16_opposition
-                0x00008a38      0x700 ./src/OpenEIT.o
-                0x00008a38                electrode_configuration_16_opposition
+                0x00008908      0x700 ./src/OpenEIT.o
+                0x00008908                electrode_configuration_16_opposition
  .rodata.electrode_configuration_8_opposition
-                0x00009138      0x180 ./src/OpenEIT.o
-                0x00009138                electrode_configuration_8_opposition
+                0x00009008      0x180 ./src/OpenEIT.o
+                0x00009008                electrode_configuration_8_opposition
  .rodata.test_Fail.str1.4
-                0x000092b8        0x0 ./src/test_common.o
+                0x00009188        0x0 ./src/test_common.o
                                   0xb (size before relaxing)
  .rodata.test_Init.str1.4
-                0x000092b8        0x0 ./src/test_common.o
+                0x00009188        0x0 ./src/test_common.o
                                  0x6a (size before relaxing)
  .rodata._get_semihosting_exts.str1.1
-                0x000092b8       0x4d ../lib/librdimon_nano.a(rdimon-syscalls.o)
+                0x00009188       0x4d ../lib/librdimon_nano.a(rdimon-syscalls.o)
                                  0x16 (size before relaxing)
  .rodata.initialise_monitor_handles.str1.1
-                0x00009305        0x0 ../lib/librdimon_nano.a(rdimon-syscalls.o)
+                0x000091d5        0x0 ../lib/librdimon_nano.a(rdimon-syscalls.o)
                                   0x4 (size before relaxing)
- *fill*         0x00009305        0x3 
+ *fill*         0x000091d5        0x3 
  .rodata.__sf_fake_stderr
-                0x00009308       0x20 ../lib/libc_nano.a(lib_a-findfp.o)
-                0x00009308                __sf_fake_stderr
+                0x000091d8       0x20 ../lib/libc_nano.a(lib_a-findfp.o)
+                0x000091d8                __sf_fake_stderr
  .rodata.__sf_fake_stdin
-                0x00009328       0x20 ../lib/libc_nano.a(lib_a-findfp.o)
-                0x00009328                __sf_fake_stdin
+                0x000091f8       0x20 ../lib/libc_nano.a(lib_a-findfp.o)
+                0x000091f8                __sf_fake_stdin
  .rodata.__sf_fake_stdout
-                0x00009348       0x20 ../lib/libc_nano.a(lib_a-findfp.o)
-                0x00009348                __sf_fake_stdout
+                0x00009218       0x20 ../lib/libc_nano.a(lib_a-findfp.o)
+                0x00009218                __sf_fake_stdout
  .rodata._global_impure_ptr
-                0x00009368        0x4 ../lib/libc_nano.a(lib_a-impure.o)
-                0x00009368                _global_impure_ptr
+                0x00009238        0x4 ../lib/libc_nano.a(lib_a-impure.o)
+                0x00009238                _global_impure_ptr
  .rodata._svfprintf_r.str1.1
-                0x0000936c        0x0 ../lib/libc_nano.a(lib_a-nano-svfprintf.o)
+                0x0000923c        0x0 ../lib/libc_nano.a(lib_a-nano-svfprintf.o)
                                  0x11 (size before relaxing)
  .rodata._printf_i.str1.1
-                0x0000936c        0x0 ../lib/libc_nano.a(lib_a-nano-vfprintf_i.o)
+                0x0000923c        0x0 ../lib/libc_nano.a(lib_a-nano-vfprintf_i.o)
                                  0x22 (size before relaxing)
  *(vtable)
  *(.eh_frame*)
  *(.glue_7)
- .glue_7        0x0000936c        0x0 linker stubs
+ .glue_7        0x0000923c        0x0 linker stubs
  *(.glue_7t)
- .glue_7t       0x0000936c        0x0 linker stubs
+ .glue_7t       0x0000923c        0x0 linker stubs
 
-.vfp11_veneer   0x0000936c        0x0
- .vfp11_veneer  0x0000936c        0x0 linker stubs
+.vfp11_veneer   0x0000923c        0x0
+ .vfp11_veneer  0x0000923c        0x0 linker stubs
 
-.v4_bx          0x0000936c        0x0
- .v4_bx         0x0000936c        0x0 linker stubs
+.v4_bx          0x0000923c        0x0
+ .v4_bx         0x0000923c        0x0 linker stubs
 
-.iplt           0x0000936c        0x0
- .iplt          0x0000936c        0x0 ./system/src/newlib/_sbrk.o
+.iplt           0x0000923c        0x0
+ .iplt          0x0000923c        0x0 ./system/src/newlib/_sbrk.o
 
 .ARM.extab
  *(.ARM.extab* .gnu.linkonce.armextab.*)
-                0x0000936c                        . = ALIGN (0x4)
-                0x0000936c                        __exidx_start = .
+                0x0000923c                        . = ALIGN (0x4)
+                0x0000923c                        __exidx_start = .
 
 .ARM.exidx      0x0000036c        0x8
  *(.ARM.exidx* .gnu.linkonce.armexidx.*)
@@ -5647,9 +5659,9 @@ END GROUP
  FILL mask 0xff
  *(.data.CCMRAM .data.CCMRAM.*)
                 0x10000000                        . = ALIGN (0x4)
-                0x0000936c                        _sidata = LOADADDR (.data)
+                0x0000923c                        _sidata = LOADADDR (.data)
 
-.data           0x20000000      0x36c load address 0x0000936c
+.data           0x20000000      0x36c load address 0x0000923c
  FILL mask 0xff
                 0x20000000                        _sdata = .
                 0x20000000                        __data_start__ = .
@@ -5706,13 +5718,13 @@ END GROUP
                 0x2000036c                        _edata = .
                 0x2000036c                        __data_end__ = .
 
-.igot.plt       0x2000036c        0x0 load address 0x000096d8
+.igot.plt       0x2000036c        0x0 load address 0x000095a8
  .igot.plt      0x2000036c        0x0 ./system/src/newlib/_sbrk.o
 
 .bss_CCMRAM     0x10000000        0x0
  *(.bss.CCMRAM .bss.CCMRAM.*)
 
-.bss            0x20000400      0x6dc
+.bss            0x20000400      0x95c
                 0x20000400                        __bss_start__ = .
                 0x20000400                        _sbss = .
  *(.bss_begin .bss_begin.*)
@@ -5778,43 +5790,63 @@ END GROUP
  .bss.TxBuffer  0x200009bc       0x64 ./src/OpenEIT.o
  .bss.RxBuffer  0x20000a20        0x2 ./src/OpenEIT.o
  *fill*         0x20000a22        0x2 
+ .bss.mx4_clr_lut
+                0x20000a24       0x40 ./src/OpenEIT.o
+ .bss.mx4_set_lut
+                0x20000a64       0x40 ./src/OpenEIT.o
+ .bss.mx3_gp3_clr_lut
+                0x20000aa4       0x40 ./src/OpenEIT.o
+ .bss.mx3_gp3_set_lut
+                0x20000ae4       0x40 ./src/OpenEIT.o
+ .bss.mx3_gp1_clr_lut
+                0x20000b24       0x40 ./src/OpenEIT.o
+ .bss.mx3_gp1_set_lut
+                0x20000b64       0x40 ./src/OpenEIT.o
+ .bss.mx2_clr_lut
+                0x20000ba4       0x40 ./src/OpenEIT.o
+ .bss.mx2_set_lut
+                0x20000be4       0x40 ./src/OpenEIT.o
+ .bss.mx1_clr_lut
+                0x20000c24       0x40 ./src/OpenEIT.o
+ .bss.mx1_set_lut
+                0x20000c64       0x40 ./src/OpenEIT.o
  .bss.monitor_stderr
-                0x20000a24        0x4 ../lib/librdimon_nano.a(rdimon-syscalls.o)
+                0x20000ca4        0x4 ../lib/librdimon_nano.a(rdimon-syscalls.o)
  .bss.monitor_stdin
-                0x20000a28        0x4 ../lib/librdimon_nano.a(rdimon-syscalls.o)
+                0x20000ca8        0x4 ../lib/librdimon_nano.a(rdimon-syscalls.o)
  .bss.monitor_stdout
-                0x20000a2c        0x4 ../lib/librdimon_nano.a(rdimon-syscalls.o)
+                0x20000cac        0x4 ../lib/librdimon_nano.a(rdimon-syscalls.o)
  .bss.openfiles
-                0x20000a30       0xa0 ../lib/librdimon_nano.a(rdimon-syscalls.o)
+                0x20000cb0       0xa0 ../lib/librdimon_nano.a(rdimon-syscalls.o)
  .bss.__malloc_free_list
-                0x20000ad0        0x4 ../lib/libc_nano.a(lib_a-nano-mallocr.o)
-                0x20000ad0                __malloc_free_list
+                0x20000d50        0x4 ../lib/libc_nano.a(lib_a-nano-mallocr.o)
+                0x20000d50                __malloc_free_list
  .bss.__malloc_sbrk_start
-                0x20000ad4        0x4 ../lib/libc_nano.a(lib_a-nano-mallocr.o)
-                0x20000ad4                __malloc_sbrk_start
+                0x20000d54        0x4 ../lib/libc_nano.a(lib_a-nano-mallocr.o)
+                0x20000d54                __malloc_sbrk_start
  *(COMMON)
  *(.bss_end .bss_end.*)
- .bss_end       0x20000ad8        0x4 ./system/src/newlib/_startup.o
-                0x20000adc                        . = ALIGN (0x4)
-                0x20000adc                        __bss_end__ = .
-                0x20000adc                        _ebss = .
+ .bss_end       0x20000d58        0x4 ./system/src/newlib/_startup.o
+                0x20000d5c                        . = ALIGN (0x4)
+                0x20000d5c                        __bss_end__ = .
+                0x20000d5c                        _ebss = .
 
 .noinit_CCMRAM
  *(.noinit.CCMRAM .noinit.CCMRAM.*)
 
-.noinit         0x20000adc        0x0
-                0x20000adc                        _noinit = .
+.noinit         0x20000d5c        0x0
+                0x20000d5c                        _noinit = .
  *(.noinit .noinit.*)
-                0x20000adc                        . = ALIGN (0x4)
-                0x20000adc                        _end_noinit = .
-                0x20000adc                        PROVIDE (end = _end_noinit)
+                0x20000d5c                        . = ALIGN (0x4)
+                0x20000d5c                        _end_noinit = .
+                0x20000d5c                        PROVIDE (end = _end_noinit)
                 [!provide]                        PROVIDE (_end = _end_noinit)
                 [!provide]                        PROVIDE (__end = _end_noinit)
                 [!provide]                        PROVIDE (__end__ = _end_noinit)
 
-._check_stack   0x20000adc      0x100
-                0x20000bdc                        . = (. + _Minimum_Stack_Size)
- *fill*         0x20000adc      0x100 
+._check_stack   0x20000d5c      0x100
+                0x20000e5c                        . = (. + _Minimum_Stack_Size)
+ *fill*         0x20000d5c      0x100 
 
 .b1text
  *(.b1text)
@@ -6011,47 +6043,49 @@ END GROUP
  .ARM.attributes
                 0x0000073f       0x2d ../lib/libc_nano.a(lib_a-strcat.o)
  .ARM.attributes
-                0x0000076c       0x17 ../lib/libc_nano.a(lib_a-strlen.o)
+                0x0000076c       0x2d ../lib/libc_nano.a(lib_a-strcpy.o)
  .ARM.attributes
-                0x00000783       0x2d ../lib/libc_nano.a(lib_a-vsnprintf.o)
+                0x00000799       0x17 ../lib/libc_nano.a(lib_a-strlen.o)
  .ARM.attributes
-                0x000007b0       0x2d ../lib/libc_nano.a(lib_a-writer.o)
+                0x000007b0       0x2d ../lib/libc_nano.a(lib_a-vsnprintf.o)
  .ARM.attributes
-                0x000007dd       0x2d ../lib/libc_nano.a(lib_a-closer.o)
+                0x000007dd       0x2d ../lib/libc_nano.a(lib_a-writer.o)
  .ARM.attributes
-                0x0000080a       0x2d ../lib/libc_nano.a(lib_a-fflush.o)
+                0x0000080a       0x2d ../lib/libc_nano.a(lib_a-closer.o)
  .ARM.attributes
-                0x00000837       0x2d ../lib/libc_nano.a(lib_a-lseekr.o)
+                0x00000837       0x2d ../lib/libc_nano.a(lib_a-fflush.o)
  .ARM.attributes
-                0x00000864       0x2d ../lib/libc_nano.a(lib_a-mlock.o)
+                0x00000864       0x2d ../lib/libc_nano.a(lib_a-lseekr.o)
  .ARM.attributes
-                0x00000891       0x2d ../lib/libc_nano.a(lib_a-nano-freer.o)
+                0x00000891       0x2d ../lib/libc_nano.a(lib_a-mlock.o)
  .ARM.attributes
-                0x000008be       0x2d ../lib/libc_nano.a(lib_a-nano-svfprintf.o)
+                0x000008be       0x2d ../lib/libc_nano.a(lib_a-nano-freer.o)
  .ARM.attributes
-                0x000008eb       0x2d ../lib/libc_nano.a(lib_a-nano-vfprintf_i.o)
+                0x000008eb       0x2d ../lib/libc_nano.a(lib_a-nano-svfprintf.o)
  .ARM.attributes
-                0x00000918       0x2d ../lib/libc_nano.a(lib_a-readr.o)
+                0x00000918       0x2d ../lib/libc_nano.a(lib_a-nano-vfprintf_i.o)
  .ARM.attributes
-                0x00000945       0x2d ../lib/libc_nano.a(lib_a-memchr-stub.o)
+                0x00000945       0x2d ../lib/libc_nano.a(lib_a-readr.o)
  .ARM.attributes
-                0x00000972       0x2d ../lib/libc_nano.a(lib_a-memmove.o)
+                0x00000972       0x2d ../lib/libc_nano.a(lib_a-memchr-stub.o)
  .ARM.attributes
-                0x0000099f       0x2d ../lib/libc_nano.a(lib_a-nano-reallocr.o)
+                0x0000099f       0x2d ../lib/libc_nano.a(lib_a-memmove.o)
  .ARM.attributes
-                0x000009cc       0x2d ../lib/libc_nano.a(lib_a-nano-msizer.o)
+                0x000009cc       0x2d ../lib/libc_nano.a(lib_a-nano-reallocr.o)
  .ARM.attributes
-                0x000009f9       0x33 ../lib/libarm_cortexM3l_math.a(arm_q15_to_q31.o)
+                0x000009f9       0x2d ../lib/libc_nano.a(lib_a-nano-msizer.o)
  .ARM.attributes
-                0x00000a2c       0x33 ../lib/libarm_cortexM3l_math.a(arm_cmplx_mag_q31.o)
+                0x00000a26       0x33 ../lib/libarm_cortexM3l_math.a(arm_q15_to_q31.o)
  .ARM.attributes
-                0x00000a5f       0x33 ../lib/libarm_cortexM3l_math.a(arm_sqrt_q31.o)
+                0x00000a59       0x33 ../lib/libarm_cortexM3l_math.a(arm_cmplx_mag_q31.o)
  .ARM.attributes
-                0x00000a92       0x1d ../lib/libgcc.a(_arm_addsubsf3.o)
+                0x00000a8c       0x33 ../lib/libarm_cortexM3l_math.a(arm_sqrt_q31.o)
  .ARM.attributes
-                0x00000aaf       0x1d ../lib/libgcc.a(_arm_muldivsf3.o)
+                0x00000abf       0x1d ../lib/libgcc.a(_arm_addsubsf3.o)
  .ARM.attributes
-                0x00000acc       0x1d ../lib/libgcc.a(_arm_fixsfsi.o)
+                0x00000adc       0x1d ../lib/libgcc.a(_arm_muldivsf3.o)
+ .ARM.attributes
+                0x00000af9       0x1d ../lib/libgcc.a(_arm_fixsfsi.o)
 
 .debug
  *(.debug)
@@ -6065,7 +6099,7 @@ END GROUP
 .debug_sfnames
  *(.debug_sfnames)
 
-.debug_aranges  0x00000000     0x15e8
+.debug_aranges  0x00000000     0x15f8
  *(.debug_aranges)
  .debug_aranges
                 0x00000000       0x28 ./system/src/newlib/_exit.o
@@ -6114,22 +6148,22 @@ END GROUP
  .debug_aranges
                 0x00001388       0xe0 ./system/src/ADuCM350/wut.o
  .debug_aranges
-                0x00001468       0xc0 ./src/OpenEIT.o
+                0x00001468       0xd0 ./src/OpenEIT.o
  .debug_aranges
-                0x00001528       0x20 ./src/PinMux.o
+                0x00001538       0x20 ./src/PinMux.o
  .debug_aranges
-                0x00001548       0x40 ./src/test_common.o
+                0x00001558       0x40 ./src/test_common.o
  .debug_aranges
-                0x00001588       0x20 ../lib/libarm_cortexM3l_math.a(arm_q15_to_q31.o)
+                0x00001598       0x20 ../lib/libarm_cortexM3l_math.a(arm_q15_to_q31.o)
  .debug_aranges
-                0x000015a8       0x20 ../lib/libarm_cortexM3l_math.a(arm_cmplx_mag_q31.o)
+                0x000015b8       0x20 ../lib/libarm_cortexM3l_math.a(arm_cmplx_mag_q31.o)
  .debug_aranges
-                0x000015c8       0x20 ../lib/libarm_cortexM3l_math.a(arm_sqrt_q31.o)
+                0x000015d8       0x20 ../lib/libarm_cortexM3l_math.a(arm_sqrt_q31.o)
 
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x00000000    0x1e045
+.debug_info     0x00000000    0x1e143
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x00000000      0x104 ./system/src/newlib/_exit.o
  .debug_info    0x00000104      0x10f ./system/src/newlib/_sbrk.o
@@ -6154,14 +6188,14 @@ END GROUP
  .debug_info    0x00016656     0x1ac3 ./system/src/ADuCM350/uart.o
  .debug_info    0x00018119      0xcc1 ./system/src/ADuCM350/wdt.o
  .debug_info    0x00018dda     0x117f ./system/src/ADuCM350/wut.o
- .debug_info    0x00019f59     0x3659 ./src/OpenEIT.o
- .debug_info    0x0001d5b2       0xaf ./src/PinMux.o
- .debug_info    0x0001d661      0x343 ./src/test_common.o
- .debug_info    0x0001d9a4      0x1b5 ../lib/libarm_cortexM3l_math.a(arm_q15_to_q31.o)
- .debug_info    0x0001db59      0x300 ../lib/libarm_cortexM3l_math.a(arm_cmplx_mag_q31.o)
- .debug_info    0x0001de59      0x1ec ../lib/libarm_cortexM3l_math.a(arm_sqrt_q31.o)
+ .debug_info    0x00019f59     0x3757 ./src/OpenEIT.o
+ .debug_info    0x0001d6b0       0xaf ./src/PinMux.o
+ .debug_info    0x0001d75f      0x343 ./src/test_common.o
+ .debug_info    0x0001daa2      0x1b5 ../lib/libarm_cortexM3l_math.a(arm_q15_to_q31.o)
+ .debug_info    0x0001dc57      0x300 ../lib/libarm_cortexM3l_math.a(arm_cmplx_mag_q31.o)
+ .debug_info    0x0001df57      0x1ec ../lib/libarm_cortexM3l_math.a(arm_sqrt_q31.o)
 
-.debug_abbrev   0x00000000     0x40f8
+.debug_abbrev   0x00000000     0x415c
  *(.debug_abbrev)
  .debug_abbrev  0x00000000       0xc5 ./system/src/newlib/_exit.o
  .debug_abbrev  0x000000c5       0xcc ./system/src/newlib/_sbrk.o
@@ -6186,14 +6220,14 @@ END GROUP
  .debug_abbrev  0x00003056      0x340 ./system/src/ADuCM350/uart.o
  .debug_abbrev  0x00003396      0x2da ./system/src/ADuCM350/wdt.o
  .debug_abbrev  0x00003670      0x265 ./system/src/ADuCM350/wut.o
- .debug_abbrev  0x000038d5      0x417 ./src/OpenEIT.o
- .debug_abbrev  0x00003cec       0x57 ./src/PinMux.o
- .debug_abbrev  0x00003d43      0x173 ./src/test_common.o
- .debug_abbrev  0x00003eb6       0x94 ../lib/libarm_cortexM3l_math.a(arm_q15_to_q31.o)
- .debug_abbrev  0x00003f4a       0xdb ../lib/libarm_cortexM3l_math.a(arm_cmplx_mag_q31.o)
- .debug_abbrev  0x00004025       0xd3 ../lib/libarm_cortexM3l_math.a(arm_sqrt_q31.o)
+ .debug_abbrev  0x000038d5      0x47b ./src/OpenEIT.o
+ .debug_abbrev  0x00003d50       0x57 ./src/PinMux.o
+ .debug_abbrev  0x00003da7      0x173 ./src/test_common.o
+ .debug_abbrev  0x00003f1a       0x94 ../lib/libarm_cortexM3l_math.a(arm_q15_to_q31.o)
+ .debug_abbrev  0x00003fae       0xdb ../lib/libarm_cortexM3l_math.a(arm_cmplx_mag_q31.o)
+ .debug_abbrev  0x00004089       0xd3 ../lib/libarm_cortexM3l_math.a(arm_sqrt_q31.o)
 
-.debug_line     0x00000000    0x13b02
+.debug_line     0x00000000    0x13cae
  *(.debug_line)
  .debug_line    0x00000000      0x35b ./system/src/newlib/_exit.o
  .debug_line    0x0000035b      0x358 ./system/src/newlib/_sbrk.o
@@ -6218,14 +6252,14 @@ END GROUP
  .debug_line    0x0000f175     0x1285 ./system/src/ADuCM350/uart.o
  .debug_line    0x000103fa      0x89c ./system/src/ADuCM350/wdt.o
  .debug_line    0x00010c96      0xaba ./system/src/ADuCM350/wut.o
- .debug_line    0x00011750     0x15e9 ./src/OpenEIT.o
- .debug_line    0x00012d39      0x305 ./src/PinMux.o
- .debug_line    0x0001303e      0x659 ./src/test_common.o
- .debug_line    0x00013697      0x162 ../lib/libarm_cortexM3l_math.a(arm_q15_to_q31.o)
- .debug_line    0x000137f9      0x192 ../lib/libarm_cortexM3l_math.a(arm_cmplx_mag_q31.o)
- .debug_line    0x0001398b      0x177 ../lib/libarm_cortexM3l_math.a(arm_sqrt_q31.o)
+ .debug_line    0x00011750     0x1795 ./src/OpenEIT.o
+ .debug_line    0x00012ee5      0x305 ./src/PinMux.o
+ .debug_line    0x000131ea      0x659 ./src/test_common.o
+ .debug_line    0x00013843      0x162 ../lib/libarm_cortexM3l_math.a(arm_q15_to_q31.o)
+ .debug_line    0x000139a5      0x192 ../lib/libarm_cortexM3l_math.a(arm_cmplx_mag_q31.o)
+ .debug_line    0x00013b37      0x177 ../lib/libarm_cortexM3l_math.a(arm_sqrt_q31.o)
 
-.debug_frame    0x00000000     0x414c
+.debug_frame    0x00000000     0x41a4
  *(.debug_frame)
  .debug_frame   0x00000000       0x38 ./system/src/newlib/_exit.o
  .debug_frame   0x00000038       0x28 ./system/src/newlib/_sbrk.o
@@ -6250,105 +6284,106 @@ END GROUP
  .debug_frame   0x00002a40      0x310 ./system/src/ADuCM350/uart.o
  .debug_frame   0x00002d50      0x188 ./system/src/ADuCM350/wdt.o
  .debug_frame   0x00002ed8      0x1e4 ./system/src/ADuCM350/wut.o
- .debug_frame   0x000030bc      0x2b8 ./src/OpenEIT.o
- .debug_frame   0x00003374       0x20 ./src/PinMux.o
- .debug_frame   0x00003394       0x90 ./src/test_common.o
- .debug_frame   0x00003424      0x3ac ../lib/librdimon_nano.a(rdimon-syscalls.o)
- .debug_frame   0x000037d0       0xac ../lib/libgcc.a(_arm_addsubdf3.o)
- .debug_frame   0x0000387c       0x24 ../lib/libgcc.a(_arm_fixunsdfsi.o)
- .debug_frame   0x000038a0       0x44 ../lib/libgcc.a(_aeabi_ldivmod.o)
- .debug_frame   0x000038e4       0x2c ../lib/libgcc.a(_aeabi_uldivmod.o)
- .debug_frame   0x00003910       0x34 ../lib/libgcc.a(_udivmoddi4.o)
- .debug_frame   0x00003944       0x20 ../lib/libc_nano.a(lib_a-errno.o)
- .debug_frame   0x00003964      0x11c ../lib/libc_nano.a(lib_a-findfp.o)
- .debug_frame   0x00003a80       0x54 ../lib/libc_nano.a(lib_a-fwalk.o)
- .debug_frame   0x00003ad4       0x28 ../lib/libc_nano.a(lib_a-memcpy-stub.o)
- .debug_frame   0x00003afc       0x20 ../lib/libc_nano.a(lib_a-memset.o)
- .debug_frame   0x00003b1c       0x2c ../lib/libc_nano.a(lib_a-nano-mallocr.o)
- .debug_frame   0x00003b48       0x2c ../lib/libc_nano.a(lib_a-sbrkr.o)
- .debug_frame   0x00003b74       0x6c ../lib/libc_nano.a(lib_a-sprintf.o)
- .debug_frame   0x00003be0       0x88 ../lib/libc_nano.a(lib_a-stdio.o)
- .debug_frame   0x00003c68       0x28 ../lib/libc_nano.a(lib_a-strcat.o)
- .debug_frame   0x00003c90       0x4c ../lib/libc_nano.a(lib_a-vsnprintf.o)
- .debug_frame   0x00003cdc       0x2c ../lib/libc_nano.a(lib_a-writer.o)
- .debug_frame   0x00003d08       0x2c ../lib/libc_nano.a(lib_a-closer.o)
- .debug_frame   0x00003d34       0x68 ../lib/libc_nano.a(lib_a-fflush.o)
- .debug_frame   0x00003d9c       0x2c ../lib/libc_nano.a(lib_a-lseekr.o)
- .debug_frame   0x00003dc8       0x30 ../lib/libc_nano.a(lib_a-mlock.o)
- .debug_frame   0x00003df8       0x38 ../lib/libc_nano.a(lib_a-nano-freer.o)
- .debug_frame   0x00003e30       0x90 ../lib/libc_nano.a(lib_a-nano-svfprintf.o)
- .debug_frame   0x00003ec0       0x60 ../lib/libc_nano.a(lib_a-nano-vfprintf_i.o)
- .debug_frame   0x00003f20       0x2c ../lib/libc_nano.a(lib_a-readr.o)
- .debug_frame   0x00003f4c       0x28 ../lib/libc_nano.a(lib_a-memchr-stub.o)
- .debug_frame   0x00003f74       0x28 ../lib/libc_nano.a(lib_a-memmove.o)
- .debug_frame   0x00003f9c       0x3c ../lib/libc_nano.a(lib_a-nano-reallocr.o)
- .debug_frame   0x00003fd8       0x20 ../lib/libc_nano.a(lib_a-nano-msizer.o)
- .debug_frame   0x00003ff8       0x30 ../lib/libarm_cortexM3l_math.a(arm_q15_to_q31.o)
- .debug_frame   0x00004028       0x3c ../lib/libarm_cortexM3l_math.a(arm_cmplx_mag_q31.o)
- .debug_frame   0x00004064       0x40 ../lib/libarm_cortexM3l_math.a(arm_sqrt_q31.o)
- .debug_frame   0x000040a4       0x4c ../lib/libgcc.a(_arm_addsubsf3.o)
- .debug_frame   0x000040f0       0x38 ../lib/libgcc.a(_arm_muldivsf3.o)
- .debug_frame   0x00004128       0x24 ../lib/libgcc.a(_arm_fixsfsi.o)
+ .debug_frame   0x000030bc      0x2f0 ./src/OpenEIT.o
+ .debug_frame   0x000033ac       0x20 ./src/PinMux.o
+ .debug_frame   0x000033cc       0x90 ./src/test_common.o
+ .debug_frame   0x0000345c      0x3ac ../lib/librdimon_nano.a(rdimon-syscalls.o)
+ .debug_frame   0x00003808       0xac ../lib/libgcc.a(_arm_addsubdf3.o)
+ .debug_frame   0x000038b4       0x24 ../lib/libgcc.a(_arm_fixunsdfsi.o)
+ .debug_frame   0x000038d8       0x44 ../lib/libgcc.a(_aeabi_ldivmod.o)
+ .debug_frame   0x0000391c       0x2c ../lib/libgcc.a(_aeabi_uldivmod.o)
+ .debug_frame   0x00003948       0x34 ../lib/libgcc.a(_udivmoddi4.o)
+ .debug_frame   0x0000397c       0x20 ../lib/libc_nano.a(lib_a-errno.o)
+ .debug_frame   0x0000399c      0x11c ../lib/libc_nano.a(lib_a-findfp.o)
+ .debug_frame   0x00003ab8       0x54 ../lib/libc_nano.a(lib_a-fwalk.o)
+ .debug_frame   0x00003b0c       0x28 ../lib/libc_nano.a(lib_a-memcpy-stub.o)
+ .debug_frame   0x00003b34       0x20 ../lib/libc_nano.a(lib_a-memset.o)
+ .debug_frame   0x00003b54       0x2c ../lib/libc_nano.a(lib_a-nano-mallocr.o)
+ .debug_frame   0x00003b80       0x2c ../lib/libc_nano.a(lib_a-sbrkr.o)
+ .debug_frame   0x00003bac       0x6c ../lib/libc_nano.a(lib_a-sprintf.o)
+ .debug_frame   0x00003c18       0x88 ../lib/libc_nano.a(lib_a-stdio.o)
+ .debug_frame   0x00003ca0       0x28 ../lib/libc_nano.a(lib_a-strcat.o)
+ .debug_frame   0x00003cc8       0x20 ../lib/libc_nano.a(lib_a-strcpy.o)
+ .debug_frame   0x00003ce8       0x4c ../lib/libc_nano.a(lib_a-vsnprintf.o)
+ .debug_frame   0x00003d34       0x2c ../lib/libc_nano.a(lib_a-writer.o)
+ .debug_frame   0x00003d60       0x2c ../lib/libc_nano.a(lib_a-closer.o)
+ .debug_frame   0x00003d8c       0x68 ../lib/libc_nano.a(lib_a-fflush.o)
+ .debug_frame   0x00003df4       0x2c ../lib/libc_nano.a(lib_a-lseekr.o)
+ .debug_frame   0x00003e20       0x30 ../lib/libc_nano.a(lib_a-mlock.o)
+ .debug_frame   0x00003e50       0x38 ../lib/libc_nano.a(lib_a-nano-freer.o)
+ .debug_frame   0x00003e88       0x90 ../lib/libc_nano.a(lib_a-nano-svfprintf.o)
+ .debug_frame   0x00003f18       0x60 ../lib/libc_nano.a(lib_a-nano-vfprintf_i.o)
+ .debug_frame   0x00003f78       0x2c ../lib/libc_nano.a(lib_a-readr.o)
+ .debug_frame   0x00003fa4       0x28 ../lib/libc_nano.a(lib_a-memchr-stub.o)
+ .debug_frame   0x00003fcc       0x28 ../lib/libc_nano.a(lib_a-memmove.o)
+ .debug_frame   0x00003ff4       0x3c ../lib/libc_nano.a(lib_a-nano-reallocr.o)
+ .debug_frame   0x00004030       0x20 ../lib/libc_nano.a(lib_a-nano-msizer.o)
+ .debug_frame   0x00004050       0x30 ../lib/libarm_cortexM3l_math.a(arm_q15_to_q31.o)
+ .debug_frame   0x00004080       0x3c ../lib/libarm_cortexM3l_math.a(arm_cmplx_mag_q31.o)
+ .debug_frame   0x000040bc       0x40 ../lib/libarm_cortexM3l_math.a(arm_sqrt_q31.o)
+ .debug_frame   0x000040fc       0x4c ../lib/libgcc.a(_arm_addsubsf3.o)
+ .debug_frame   0x00004148       0x38 ../lib/libgcc.a(_arm_muldivsf3.o)
+ .debug_frame   0x00004180       0x24 ../lib/libgcc.a(_arm_fixsfsi.o)
 
-.debug_str      0x00000000    0x53c05
+.debug_str      0x00000000    0x5d477
  *(.debug_str)
- .debug_str     0x00000000    0x53c05 ./system/src/newlib/_exit.o
+ .debug_str     0x00000000    0x5d477 ./system/src/newlib/_exit.o
                                0x7cbb (size before relaxing)
- .debug_str     0x00053c05        0x0 ./system/src/newlib/_sbrk.o
+ .debug_str     0x0005d477        0x0 ./system/src/newlib/_sbrk.o
                                0x7070 (size before relaxing)
- .debug_str     0x00053c05        0x0 ./system/src/newlib/_startup.o
+ .debug_str     0x0005d477        0x0 ./system/src/newlib/_startup.o
                                0x66cf (size before relaxing)
- .debug_str     0x00053c05        0x0 ./system/src/newlib/_syscalls.o
+ .debug_str     0x0005d477        0x0 ./system/src/newlib/_syscalls.o
                                0x8ffe (size before relaxing)
- .debug_str     0x00053c05        0x0 ./system/src/diag/Trace.o
+ .debug_str     0x0005d477        0x0 ./system/src/diag/Trace.o
                                0x842e (size before relaxing)
- .debug_str     0x00053c05        0x0 ./system/src/diag/trace_impl.o
+ .debug_str     0x0005d477        0x0 ./system/src/diag/trace_impl.o
                               0x40801 (size before relaxing)
- .debug_str     0x00053c05        0x0 ./system/src/cortexm/_initialize_hardware.o
+ .debug_str     0x0005d477        0x0 ./system/src/cortexm/_initialize_hardware.o
                               0x3d0ce (size before relaxing)
- .debug_str     0x00053c05        0x0 ./system/src/cortexm/exception_handlers.o
+ .debug_str     0x0005d477        0x0 ./system/src/cortexm/exception_handlers.o
                               0x41bc3 (size before relaxing)
- .debug_str     0x00053c05        0x0 ./system/src/cmsis/system_ADuCM350.o
+ .debug_str     0x0005d477        0x0 ./system/src/cmsis/system_ADuCM350.o
                               0x3f04b (size before relaxing)
- .debug_str     0x00053c05        0x0 ./system/src/cmsis/vectors_ADuCM350.o
+ .debug_str     0x0005d477        0x0 ./system/src/cmsis/vectors_ADuCM350.o
                               0x40807 (size before relaxing)
- .debug_str     0x00053c05        0x0 ./system/src/ADuCM350/afe.o
+ .debug_str     0x0005d477        0x0 ./system/src/ADuCM350/afe.o
                               0x4248f (size before relaxing)
- .debug_str     0x00053c05        0x0 ./system/src/ADuCM350/afe_lib.o
+ .debug_str     0x0005d477        0x0 ./system/src/ADuCM350/afe_lib.o
                               0x41069 (size before relaxing)
- .debug_str     0x00053c05        0x0 ./system/src/ADuCM350/beep.o
+ .debug_str     0x0005d477        0x0 ./system/src/ADuCM350/beep.o
                               0x418fe (size before relaxing)
- .debug_str     0x00053c05        0x0 ./system/src/ADuCM350/captouch.o
+ .debug_str     0x0005d477        0x0 ./system/src/ADuCM350/captouch.o
                               0x448b0 (size before relaxing)
- .debug_str     0x00053c05        0x0 ./system/src/ADuCM350/dma.o
+ .debug_str     0x0005d477        0x0 ./system/src/ADuCM350/dma.o
                               0x3dd60 (size before relaxing)
- .debug_str     0x00053c05        0x0 ./system/src/ADuCM350/flash.o
+ .debug_str     0x0005d477        0x0 ./system/src/ADuCM350/flash.o
                               0x3eb60 (size before relaxing)
- .debug_str     0x00053c05        0x0 ./system/src/ADuCM350/gpio.o
+ .debug_str     0x0005d477        0x0 ./system/src/ADuCM350/gpio.o
                               0x3de56 (size before relaxing)
- .debug_str     0x00053c05        0x0 ./system/src/ADuCM350/gpt.o
+ .debug_str     0x0005d477        0x0 ./system/src/ADuCM350/gpt.o
                               0x41170 (size before relaxing)
- .debug_str     0x00053c05        0x0 ./system/src/ADuCM350/rng.o
+ .debug_str     0x0005d477        0x0 ./system/src/ADuCM350/rng.o
                               0x40cc6 (size before relaxing)
- .debug_str     0x00053c05        0x0 ./system/src/ADuCM350/spi.o
+ .debug_str     0x0005d477        0x0 ./system/src/ADuCM350/spi.o
                               0x42419 (size before relaxing)
- .debug_str     0x00053c05        0x0 ./system/src/ADuCM350/uart.o
+ .debug_str     0x0005d477        0x0 ./system/src/ADuCM350/uart.o
                               0x41571 (size before relaxing)
- .debug_str     0x00053c05        0x0 ./system/src/ADuCM350/wdt.o
+ .debug_str     0x0005d477        0x0 ./system/src/ADuCM350/wdt.o
                               0x3dd36 (size before relaxing)
- .debug_str     0x00053c05        0x0 ./system/src/ADuCM350/wut.o
+ .debug_str     0x0005d477        0x0 ./system/src/ADuCM350/wut.o
                               0x3dc10 (size before relaxing)
- .debug_str     0x00053c05        0x0 ./src/OpenEIT.o
-                              0x432ac (size before relaxing)
- .debug_str     0x00053c05        0x0 ./src/PinMux.o
+ .debug_str     0x0005d477        0x0 ./src/OpenEIT.o
+                              0x4cafd (size before relaxing)
+ .debug_str     0x0005d477        0x0 ./src/PinMux.o
                               0x3d0a6 (size before relaxing)
- .debug_str     0x00053c05        0x0 ./src/test_common.o
+ .debug_str     0x0005d477        0x0 ./src/test_common.o
                               0x42450 (size before relaxing)
- .debug_str     0x00053c05        0x0 ../lib/libarm_cortexM3l_math.a(arm_q15_to_q31.o)
+ .debug_str     0x0005d477        0x0 ../lib/libarm_cortexM3l_math.a(arm_q15_to_q31.o)
                                 0x22e (size before relaxing)
- .debug_str     0x00053c05        0x0 ../lib/libarm_cortexM3l_math.a(arm_cmplx_mag_q31.o)
+ .debug_str     0x0005d477        0x0 ../lib/libarm_cortexM3l_math.a(arm_cmplx_mag_q31.o)
                                 0x31f (size before relaxing)
- .debug_str     0x00053c05        0x0 ../lib/libarm_cortexM3l_math.a(arm_sqrt_q31.o)
+ .debug_str     0x0005d477        0x0 ../lib/libarm_cortexM3l_math.a(arm_sqrt_q31.o)
                                 0x2e1 (size before relaxing)
 
 .debug_loc      0x00000000      0x872
@@ -6375,7 +6410,7 @@ OUTPUT(firm.elf elf32-littlearm)
 LOAD linker stubs
 
 .debug_loclists
-                0x00000000     0x9785
+                0x00000000     0x9b27
  .debug_loclists
                 0x00000000       0x17 ./system/src/newlib/_exit.o
  .debug_loclists
@@ -6421,12 +6456,12 @@ LOAD linker stubs
  .debug_loclists
                 0x0000856a      0x608 ./system/src/ADuCM350/wut.o
  .debug_loclists
-                0x00008b72      0xbcd ./src/OpenEIT.o
+                0x00008b72      0xf6f ./src/OpenEIT.o
  .debug_loclists
-                0x0000973f       0x46 ./src/test_common.o
+                0x00009ae1       0x46 ./src/test_common.o
 
 .debug_rnglists
-                0x00000000     0x10f5
+                0x00000000     0x1166
  .debug_rnglists
                 0x00000000       0x19 ./system/src/newlib/_exit.o
  .debug_rnglists
@@ -6474,13 +6509,13 @@ LOAD linker stubs
  .debug_rnglists
                 0x00000ef0       0xa5 ./system/src/ADuCM350/wut.o
  .debug_rnglists
-                0x00000f95      0x122 ./src/OpenEIT.o
+                0x00000f95      0x193 ./src/OpenEIT.o
  .debug_rnglists
-                0x000010b7       0x13 ./src/PinMux.o
+                0x00001128       0x13 ./src/PinMux.o
  .debug_rnglists
-                0x000010ca       0x2b ./src/test_common.o
+                0x0000113b       0x2b ./src/test_common.o
 
-.debug_macro    0x00000000    0x10086
+.debug_macro    0x00000000    0x111db
  .debug_macro   0x00000000      0x1ae ./system/src/newlib/_exit.o
  .debug_macro   0x000001ae      0xad2 ./system/src/newlib/_exit.o
  .debug_macro   0x00000c80       0x34 ./system/src/newlib/_exit.o
@@ -6587,13 +6622,14 @@ LOAD linker stubs
  .debug_macro   0x0000f16e      0x1b9 ./system/src/ADuCM350/wdt.o
  .debug_macro   0x0000f327       0x34 ./system/src/ADuCM350/wdt.o
  .debug_macro   0x0000f35b      0x195 ./system/src/ADuCM350/wut.o
- .debug_macro   0x0000f4f0      0x357 ./src/OpenEIT.o
- .debug_macro   0x0000f847       0x12 ./src/OpenEIT.o
- .debug_macro   0x0000f859      0x19b ./src/OpenEIT.o
- .debug_macro   0x0000f9f4       0xeb ./src/OpenEIT.o
- .debug_macro   0x0000fadf       0xa0 ./src/OpenEIT.o
- .debug_macro   0x0000fb7f      0x17f ./src/PinMux.o
- .debug_macro   0x0000fcfe      0x388 ./src/test_common.o
+ .debug_macro   0x0000f4f0      0x365 ./src/OpenEIT.o
+ .debug_macro   0x0000f855       0x12 ./src/OpenEIT.o
+ .debug_macro   0x0000f867      0x19b ./src/OpenEIT.o
+ .debug_macro   0x0000fa02       0xeb ./src/OpenEIT.o
+ .debug_macro   0x0000faed       0xa0 ./src/OpenEIT.o
+ .debug_macro   0x0000fb8d     0x1147 ./src/OpenEIT.o
+ .debug_macro   0x00010cd4      0x17f ./src/PinMux.o
+ .debug_macro   0x00010e53      0x388 ./src/test_common.o
 
 .debug_ranges   0x00000000       0x30
  .debug_ranges  0x00000000       0x10 ../lib/libarm_cortexM3l_math.a(arm_q15_to_q31.o)
