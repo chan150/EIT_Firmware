@@ -176,18 +176,18 @@ static ADI_UART_DEV_DATA_TYPE UART_DevData[] =
        false,                                           /*!< interrupt flag init state  */
 #endif /* (0 == ADI_CFG_ENABLE_RTOS_SUPPORT) */
        {
-           NULL,                                        /*!< rx buffer start address    */
+           0,                                           /*!< rx buffer start address    */
            0,                                           /*!< rx buffer write index      */
            0,                                           /*!< rx buffer read index       */
-           NULL,                                        /*!< rx buffer size             */
+           0,                                           /*!< rx buffer size             */
            0,                                           /*!< available bytes            */
        },
        {
-           NULL,                                        /*!< tx buffer start address    */
+           0,                                           /*!< tx buffer start address    */
            0,                                           /*!< tx buffer read index       */
            0,                                           /*!< tx buffer write index      */
-           NULL,                                        /*!< tx buffer size             */
-           NULL,                                        /*!< number of free elements    */
+           0,                                           /*!< tx buffer size             */
+           0,                                           /*!< number of free elements    */
        },
 #endif /* (1 == ADI_UART_CFG_INTERRUPT_MODE_SUPPORT) */
 #if defined(ADI_DEBUG)

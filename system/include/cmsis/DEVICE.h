@@ -40,7 +40,7 @@
 #define Device_H
 
 
-#include "device.h"
+#include "../ADuCM350/device.h"
 
 #ifdef __cplusplus
  extern "C" {

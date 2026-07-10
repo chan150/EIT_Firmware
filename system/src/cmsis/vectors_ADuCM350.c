@@ -18,7 +18,7 @@ Portions Copyright (c) 2018 Andrew Grosser, Moritz von Buttlar.
  * @version: $Revision: 30127 $
  * @date:    $Date: 2015-03-09 12:05:31 -0400 (Mon, 09 Mar 2015) $
  *****************************************************************************/
-#include "newlib/sys/reent.h"
+#include <sys/reent.h>
 #include "startup.h"
 
 #include "cortexm/ExceptionHandlers.h"
