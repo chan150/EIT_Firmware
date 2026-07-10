@@ -906,10 +906,7 @@ void multiplex_adg732(ADI_AFE_DEV_HANDLE  hDevice, const uint32_t *const seq,uin
     /* Calculate final magnitude value, calibrated with RTIA the gain of the instrumenation amplifier */
     rtiaAndGain = (uint32_t)((RTIA * 1.5) / INST_AMP_GAIN);
       
-    char                tx_buf[1024];
-    int                 tx_idx = 0;
-    strcpy(tx_buf, "magnitudes: ");
-    tx_idx = strlen(tx_buf);
+    PRINT("magnitudes: ");
     // 
     // NUMBEROFMEASURES is determined by which electrode configuration: 8,16 or 32. 
     for (uint32_t econf = 0;econf<numberofmeasures;econf++) {    
@@ -979,19 +976,9 @@ void multiplex_adg732(ADI_AFE_DEV_HANDLE  hDevice, const uint32_t *const seq,uin
       sprintf_fixed32(tmp, magnitude_result[0]);
       strcat(tmp,",");
       
-      int len = strlen(tmp);
-      if (tx_idx + len >= 1024) {
-        PRINT(tx_buf);
-        tx_idx = 0;
-        memset(tx_buf, 0, 1024);
-      }
-      strcpy(tx_buf + tx_idx, tmp);
-      tx_idx += len;
+      PRINT(tmp);
     } // END  e_config for loop. 
     
-    if (tx_idx > 0) {
-      PRINT(tx_buf);
-    }
     PRINT("\r\n"); 
     adi_UART_BufFlush(hUartDevice);
 }
@@ -1019,10 +1006,7 @@ void bipolar_adg732(ADI_AFE_DEV_HANDLE  hDevice, const uint32_t *const seq,uint3
       PRINT("number of measures is 0\n");
     }
 
-    char                tx_buf[1024];
-    int                 tx_idx = 0;
-    strcpy(tx_buf, "magnitudes: ");
-    tx_idx = strlen(tx_buf);
+    PRINT("magnitudes: ");
     // NUMBEROFMEASURES is determined by which electrode configuration: 8,16 or 32. 
     for (uint32_t econf = 0;econf<numberofmeasures;econf++) {    
                 
@@ -1086,20 +1070,9 @@ void bipolar_adg732(ADI_AFE_DEV_HANDLE  hDevice, const uint32_t *const seq,uint3
       sprintf_fixed32(tmp, magnitude_result[0]);
       strcat(tmp,",");
       
-      int len = strlen(tmp);
-      if (tx_idx + len >= 1024) {
-        PRINT(tx_buf);
-        tx_idx = 0;
-        memset(tx_buf, 0, 1024);
-      }
-      strcpy(tx_buf + tx_idx, tmp);
-      tx_idx += len;
-            
+      PRINT(tmp);
     } // END  e_config for loop. 
     
-    if (tx_idx > 0) {
-      PRINT(tx_buf);
-    }
     PRINT("\r\n"); 
     adi_UART_BufFlush(hUartDevice);
 }
