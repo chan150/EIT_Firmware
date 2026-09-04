@@ -10,3 +10,7 @@
 # untracked: it would otherwise show up dirty after every flashing session.
 /jlc.cfg
 /tools/SerialDownloader/CM3WSD/cm3wsd.ini
+
+# Two-line J-Link scratch script ("?" then "exit", i.e. print the command
+# list). Local scribble, not part of the flashing flow.
+/show.cfg
