@@ -1,0 +1,17 @@
+#!/bin/bash
+# Template for jlc.cfg, the J-Link CommanderScript upload.sh runs.
+#
+#   cp jlc.cfg.example jlc.cfg
+#
+# The real jlc.cfg is ignored, because the useful edits to it are local: which
+# build to flash, and whether to erase first. The path below matches the
+# Release build the README describes; point it at ./Debug/firm.hex if you are
+# flashing a debug build. Keep it relative - an absolute path only works on the
+# machine that wrote it.
+connect
+r
+#erase
+#r
+loadfile ./Release/firm.hex
+r
+exit

@@ -12,6 +12,20 @@ This software has been used and tested on:
 ## Build and Install
 * Build using the the "Release" configuration and use "upload.sh" to upload it to your device. This version can not be debugged (the Debug configuration can).
 
+### Local flashing configuration
+The two files that say *which* hex to flash and *where* are not tracked, because
+the answers differ per machine. Seed them once from the templates beside them:
+
+```
+cp jlc.cfg.example jlc.cfg
+cp tools/SerialDownloader/CM3WSD/cm3wsd.ini.example    tools/SerialDownloader/CM3WSD/cm3wsd.ini
+```
+
+`jlc.cfg` is the J-Link CommanderScript `upload.sh` runs; edit the `loadfile`
+line if you are flashing `./Debug/firm.hex` instead, and uncomment `erase` to
+mass-erase first. `cm3wsd.ini` is for the serial downloader under
+`tools/SerialDownloader/`, which needs the right `Port=` for your adapter.
+
 ## Details of the function and operation of the firmware. 
 Wondering how the impedance measures are made? Want to get phase and magnitude out and play with that? Want to try different electrode stimulation patterns? You're in the right place.
 

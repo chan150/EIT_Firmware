@@ -1,0 +1,12 @@
+[Flash]
+MassErase=No
+Program=Yes
+Verify=Yes
+[cm3wsd]
+Part=ADuCM350
+File=..\..\..\Release\firm.hex
+[Run]
+Autorun=No
+[Coms]
+Baud=115200
+Port=COM4

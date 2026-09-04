@@ -1,0 +1,12 @@
+# Local flashing configuration. Both carry a hex path and, for CM3WSD, a COM
+# port that differ per machine, so they are kept out and seeded from the
+# .example files beside them:
+#
+#   cp jlc.cfg.example jlc.cfg
+#   cp tools/SerialDownloader/CM3WSD/cm3wsd.ini.example \
+#      tools/SerialDownloader/CM3WSD/cm3wsd.ini
+#
+# CM3WSD rewrites its ini on exit, which is the other reason to keep it
+# untracked: it would otherwise show up dirty after every flashing session.
+/jlc.cfg
+/tools/SerialDownloader/CM3WSD/cm3wsd.ini
