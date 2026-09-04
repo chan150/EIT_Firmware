@@ -1,0 +1,2 @@
+// JLinkScript for ADUCM350 - connect under reset
+int ConnectUnderReset = 1;
